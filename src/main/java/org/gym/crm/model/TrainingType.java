@@ -1,9 +1,12 @@
 package org.gym.crm.model;
 
-public enum TrainingType {
-    CARDIO,
-    STRENGTH,
-    YOGA,
-    PILATES,
-    CROSSFIT
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+
+@Getter
+@ToString
+@EqualsAndHashCode
+public class TrainingType {
+    private String trainingTypeName;
 }
