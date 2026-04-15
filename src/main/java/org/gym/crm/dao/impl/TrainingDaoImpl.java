@@ -1,9 +1,9 @@
 package org.gym.crm.dao.impl;
 
+import lombok.Setter;
 import org.gym.crm.dao.TrainingDao;
 import org.gym.crm.model.Training;
 import org.gym.crm.storage.TrainingStorage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -13,12 +13,8 @@ import java.util.Optional;
 
 @Repository
 public class TrainingDaoImpl implements TrainingDao {
+    @Setter
     private TrainingStorage storage;
-
-    @Autowired
-    public void setStorage(TrainingStorage storage) {
-        this.storage = storage;
-    }
 
     private Map<Long, Training> store() {
         return storage.getTrainings();
