@@ -1,3 +1,3 @@
 id,firstName,lastName,username,password,isActive,specialization,userId
-1,Alice,Brown,Alice.Brown,pass123456,true,Yoga,3
-2,Bob,Jones,Bob.Jones,pass654321,true,CrossFit,4
+1,Alice,Brown,Alice.Brown,testpass1,true,Yoga,3
+2,Bob,Jones,Bob.Jones,testpass2,true,CrossFit,4

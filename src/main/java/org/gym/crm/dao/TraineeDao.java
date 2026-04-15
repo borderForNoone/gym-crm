@@ -7,8 +7,12 @@ import java.util.Optional;
 
 public interface TraineeDao {
     Trainee save(Long id, Trainee trainee);
+
     Optional<Trainee> findById(Long id);
+
     List<Trainee> findAll();
+
     Trainee update(Long id, Trainee trainee);
+
     void delete(Long id);
 }

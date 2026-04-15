@@ -1,8 +1,8 @@
-package org.gym.crm.impl;
+package org.gym.crm.dao.impl;
 
 import org.gym.crm.dao.TrainerDao;
 import org.gym.crm.model.Trainer;
-import org.gym.crm.storage.InMemoryStorage;
+import org.gym.crm.storage.TrainerStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -13,15 +13,11 @@ import java.util.Optional;
 
 @Repository
 public class TrainerDaoImpl implements TrainerDao {
-    private InMemoryStorage storage;
+    private TrainerStorage storage;
 
     @Autowired
-    public void setStorage(InMemoryStorage storage) {
+    public void setStorage(TrainerStorage storage) {
         this.storage = storage;
-    }
-
-    private Map<Long, Trainer> store() {
-        return storage.getTrainers();
     }
 
     @Override
@@ -47,5 +43,9 @@ public class TrainerDaoImpl implements TrainerDao {
         }
         store().put(id, trainer);
         return trainer;
+    }
+
+    private Map<Long, Trainer> store() {
+        return storage.getTrainers();
     }
 }

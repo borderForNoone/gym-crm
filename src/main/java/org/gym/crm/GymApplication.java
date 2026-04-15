@@ -8,7 +8,6 @@ public class GymApplication {
     public static void main(String[] args) {
         try (AnnotationConfigApplicationContext context =
                      new AnnotationConfigApplicationContext(AppConfig.class)) {
-            System.out.println("Spring context started successfully");
         }
     }
 
