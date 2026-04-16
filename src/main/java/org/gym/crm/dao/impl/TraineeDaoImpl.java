@@ -12,6 +12,7 @@ import java.util.Optional;
 
 @Repository
 public class TraineeDaoImpl implements TraineeDao {
+    private static final String TRAINEE_NOT_FOUND_MESSAGE = "Trainee not found with id: ";
     private final TraineeStorage storage;
 
     public TraineeDaoImpl(Storage storage) {
@@ -38,7 +39,7 @@ public class TraineeDaoImpl implements TraineeDao {
     @Override
     public Trainee update(Long id, Trainee trainee) {
         if (!storage.getTrainees().containsKey(id)) {
-            throw new IllegalArgumentException("Trainee not found with id: " + id);
+            throw new IllegalArgumentException(TRAINEE_NOT_FOUND_MESSAGE + id);
         }
         storage.getTrainees().put(id, trainee);
 
@@ -48,7 +49,7 @@ public class TraineeDaoImpl implements TraineeDao {
     @Override
     public void delete(Long id) {
         if (storage.getTrainees().remove(id) == null) {
-            throw new IllegalArgumentException("Trainee not found with id: " + id);
+            throw new IllegalArgumentException(TRAINEE_NOT_FOUND_MESSAGE + id);
         }
     }
 }
