@@ -1,9 +1,8 @@
 package org.gym.crm.dao.impl;
 
-import lombok.Setter;
 import org.gym.crm.dao.TrainingDao;
 import org.gym.crm.model.Training;
-import org.gym.crm.storage.TrainingStorage;
+import org.gym.crm.storage.Storage;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -13,16 +12,16 @@ import java.util.Optional;
 
 @Repository
 public class TrainingDaoImpl implements TrainingDao {
-    @Setter
-    private TrainingStorage storage;
+    private final Storage storage;
 
-    private Map<Long, Training> store() {
-        return storage.getTrainings();
+    public TrainingDaoImpl(Storage storage) {
+        this.storage = storage;
     }
 
     @Override
     public Training save(Training training) {
         store().put(training.getId(), training);
+
         return training;
     }
 
@@ -34,5 +33,9 @@ public class TrainingDaoImpl implements TrainingDao {
     @Override
     public List<Training> findAll() {
         return new ArrayList<>(store().values());
+    }
+
+    private Map<Long, Training> store() {
+        return storage.getTrainingStorage().getTrainings();
     }
 }

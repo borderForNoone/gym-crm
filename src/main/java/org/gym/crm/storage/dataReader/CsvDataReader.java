@@ -1,7 +1,6 @@
-package org.gym.crm.storage.dataReader.impl;
+package org.gym.crm.storage.dataReader;
 
-import org.gym.crm.storage.dataReader.DataReader;
-import org.gym.crm.storage.exceptions.StorageException;
+import org.gym.crm.storage.exception.StorageException;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -11,8 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class CsvDataReader implements DataReader {
-    @Override
+public class CsvDataReader {
     public List<String[]> readData(String filePath) {
         List<String[]> records = new ArrayList<>();
 

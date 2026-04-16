@@ -1,4 +1,4 @@
-package org.gym.crm.storage.exceptions;
+package org.gym.crm.storage.exception;
 
 public class StorageException extends RuntimeException {
     public StorageException(String message) {

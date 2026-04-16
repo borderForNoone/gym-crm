@@ -1,9 +1,8 @@
 package org.gym.crm.dao.impl;
 
-import lombok.Setter;
 import org.gym.crm.dao.TraineeDao;
 import org.gym.crm.model.Trainee;
-import org.gym.crm.storage.TraineeStorage;
+import org.gym.crm.storage.Storage;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -13,16 +12,16 @@ import java.util.Optional;
 
 @Repository
 public class TraineeDaoImpl implements TraineeDao {
-    @Setter
-    private TraineeStorage storage;
+    private final Storage storage;
 
-    private Map<Long, Trainee> store() {
-        return storage.getTrainees();
+    public TraineeDaoImpl(Storage storage) {
+        this.storage = storage;
     }
 
     @Override
     public Trainee save(Long id, Trainee trainee) {
         store().put(id, trainee);
+
         return trainee;
     }
 
@@ -42,6 +41,7 @@ public class TraineeDaoImpl implements TraineeDao {
             throw new IllegalArgumentException("Trainee not found with id: " + id);
         }
         store().put(id, trainee);
+
         return trainee;
     }
 
@@ -50,5 +50,9 @@ public class TraineeDaoImpl implements TraineeDao {
         if (store().remove(id) == null) {
             throw new IllegalArgumentException("Trainee not found with id: " + id);
         }
+    }
+
+    private Map<Long, Trainee> store() {
+        return storage.getTraineeStorage().getTrainees();
     }
 }
