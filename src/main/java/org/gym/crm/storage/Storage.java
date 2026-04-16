@@ -35,10 +35,4 @@ public class Storage {
     public TrainingStorage getTrainingStorage() {
         return (TrainingStorage) storages.get(Namespace.TRAINING);
     }
-
-    public enum Namespace {
-        TRAINEE,
-        TRAINER,
-        TRAINING
-    }
 }
