@@ -13,6 +13,7 @@ import java.util.Optional;
 @Repository
 public class TraineeDaoImpl implements TraineeDao {
     private static final String TRAINEE_NOT_FOUND_MESSAGE = "Trainee not found with id: ";
+
     private final TraineeStorage storage;
 
     public TraineeDaoImpl(Storage storage) {
