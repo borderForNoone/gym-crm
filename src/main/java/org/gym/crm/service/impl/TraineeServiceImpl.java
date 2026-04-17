@@ -4,6 +4,7 @@ import lombok.Setter;
 import org.gym.crm.dao.TraineeDao;
 import org.gym.crm.model.Trainee;
 import org.gym.crm.service.TraineeService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Optional;
 
 @Service
 public class TraineeServiceImpl implements TraineeService {
+    @Autowired
     @Setter
     private TraineeDao traineeDao;
 
