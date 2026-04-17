@@ -1,0 +1,18 @@
+package org.gym.crm.service;
+
+import org.gym.crm.model.Trainee;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface TraineeService {
+    Trainee create(Long id, Trainee trainee);
+
+    Optional<Trainee> findById(Long id);
+
+    List<Trainee> findAll();
+
+    Trainee update(Long id, Trainee trainee);
+
+    void delete(Long id);
+}
