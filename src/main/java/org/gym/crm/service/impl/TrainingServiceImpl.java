@@ -1,5 +1,6 @@
 package org.gym.crm.service.impl;
 
+import lombok.Setter;
 import org.gym.crm.dao.TrainingDao;
 import org.gym.crm.model.Training;
 import org.gym.crm.service.TrainingService;
@@ -10,6 +11,7 @@ import java.util.Optional;
 
 @Service
 public class TrainingServiceImpl implements TrainingService {
+    @Setter
     private TrainingDao trainingDao;
 
     @Override
