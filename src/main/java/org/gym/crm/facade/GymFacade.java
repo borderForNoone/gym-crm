@@ -1,7 +1,11 @@
 package org.gym.crm.facade;
 
-import org.gym.crm.model.Trainee;
-import org.gym.crm.model.Trainer;
+import org.gym.crm.dto.request.TraineeRequestDto;
+import org.gym.crm.dto.request.TrainerRequestDto;
+import org.gym.crm.dto.request.TrainingRequestDto;
+import org.gym.crm.dto.responce.TraineeResponseDto;
+import org.gym.crm.dto.responce.TrainerResponseDto;
+import org.gym.crm.dto.responce.TrainingResponseDto;
 import org.gym.crm.model.Training;
 import org.gym.crm.service.TraineeService;
 import org.gym.crm.service.TrainerService;
@@ -25,51 +29,51 @@ public class GymFacade {
         this.trainingService = trainingService;
     }
 
-    public Trainee createTrainee(Long id, Trainee trainee) {
-        return traineeService.create(id, trainee);
+    public TraineeResponseDto createTrainee(Long id, TraineeRequestDto request) {
+        return traineeService.create(id, request);
     }
 
-    public Optional<Trainee> getTrainee(Long id) {
+    public Optional<TraineeResponseDto> getTrainee(Long id) {
         return traineeService.findById(id);
     }
 
-    public List<Trainee> getAllTrainees() {
+    public List<TraineeResponseDto> getAllTrainees() {
         return traineeService.findAll();
     }
 
-    public Trainee updateTrainee(Long id, Trainee trainee) {
-        return traineeService.update(id, trainee);
+    public TraineeResponseDto updateTrainee(Long id, TraineeRequestDto request) {
+        return traineeService.update(id, request);
     }
 
     public void deleteTrainee(Long id) {
         traineeService.delete(id);
     }
 
-    public Trainer createTrainer(Long id, Trainer trainer) {
-        return trainerService.create(id, trainer);
+    public TrainerResponseDto createTrainer(Long id, TrainerRequestDto request) {
+        return trainerService.create(id, request);
     }
 
-    public Optional<Trainer> getTrainer(Long id) {
+    public Optional<TrainerResponseDto> getTrainer(Long id) {
         return trainerService.findById(id);
     }
 
-    public List<Trainer> getAllTrainers() {
+    public List<TrainerResponseDto> getAllTrainers() {
         return trainerService.findAll();
     }
 
-    public Trainer updateTrainer(Long id, Trainer trainer) {
-        return trainerService.update(id, trainer);
+    public TrainerResponseDto updateTrainer(Long id, TrainerRequestDto request) {
+        return trainerService.update(id, request);
     }
 
-    public Training createTraining(Training training) {
-        return trainingService.create(training);
+    public TrainingResponseDto createTraining(TrainingRequestDto request) {
+        return trainingService.create(request);
     }
 
-    public Optional<Training> getTraining(Long id) {
+    public Optional<TrainingResponseDto> getTraining(Long id) {
         return trainingService.findById(id);
     }
 
-    public List<Training> getAllTrainings() {
+    public List<TrainingResponseDto> getAllTrainings() {
         return trainingService.findAll();
     }
 }

@@ -2,8 +2,12 @@ package org.gym.crm.service.impl;
 
 import lombok.Setter;
 import org.gym.crm.dao.TrainerDao;
+import org.gym.crm.dto.request.TrainerRequestDto;
+import org.gym.crm.dto.responce.TrainerResponseDto;
+import org.gym.crm.mapper.TrainerMapper;
 import org.gym.crm.model.Trainer;
 import org.gym.crm.service.TrainerService;
+import org.gym.crm.service.UserProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,23 +20,45 @@ public class TrainerServiceImpl implements TrainerService {
     @Setter
     private TrainerDao trainerDao;
 
+    @Autowired
+    private UserProfileService userProfileService;
+
+    @Autowired
+    private TrainerMapper trainerMapper;
+
     @Override
-    public Trainer create(Long id, Trainer trainer) {
-        return trainerDao.save(id, trainer);
+    public TrainerResponseDto create(Long id, TrainerRequestDto request) {
+        Trainer trainer = trainerMapper.toEntity(request);
+
+        String username = userProfileService.generateUsername(
+                trainer.getFirstName(), trainer.getLastName());
+        String password = userProfileService.generatePassword();
+
+        Trainer trainerWithProfile = trainer.toBuilder()
+                .username(username)
+                .password(password)
+                .build();
+
+        return trainerMapper.toResponseDto(trainerDao.save(id, trainerWithProfile));
     }
 
     @Override
-    public Optional<Trainer> findById(Long id) {
-        return trainerDao.findById(id);
+    public Optional<TrainerResponseDto> findById(Long id) {
+        return trainerDao.findById(id)
+                .map(trainerMapper::toResponseDto);
     }
 
     @Override
-    public List<Trainer> findAll() {
-        return trainerDao.findAll();
+    public List<TrainerResponseDto> findAll() {
+        return trainerDao.findAll().stream()
+                .map(trainerMapper::toResponseDto)
+                .toList();
     }
 
     @Override
-    public Trainer update(Long id, Trainer trainer) {
-        return trainerDao.update(id, trainer);
+    public TrainerResponseDto update(Long id, TrainerRequestDto request) {
+        Trainer trainer = trainerMapper.toEntity(request);
+
+        return trainerMapper.toResponseDto(trainerDao.update(id, trainer));
     }
 }
