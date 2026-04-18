@@ -58,6 +58,7 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     public TraineeResponseDto update(Long id, TraineeRequestDto request) {
         Trainee trainee = traineeMapper.toEntity(request);
+
         return traineeMapper.toResponseDto(traineeDao.update(id, trainee));
     }
 
