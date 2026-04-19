@@ -2,9 +2,6 @@ package org.gym.crm.service.impl;
 
 import lombok.Setter;
 import org.gym.crm.dao.TraineeDao;
-import org.gym.crm.dto.request.TraineeRequestDto;
-import org.gym.crm.dto.responce.TraineeResponseDto;
-import org.gym.crm.mapper.TraineeMapper;
 import org.gym.crm.model.Trainee;
 import org.gym.crm.service.TraineeService;
 import org.gym.crm.service.UserProfileService;
@@ -23,13 +20,8 @@ public class TraineeServiceImpl implements TraineeService {
     @Autowired
     private UserProfileService userProfileService;
 
-    @Autowired
-    private TraineeMapper traineeMapper;
-
     @Override
-    public TraineeResponseDto create(Long id, TraineeRequestDto request) {
-        Trainee trainee = traineeMapper.toEntity(request);
-
+    public Trainee create(Long id, Trainee trainee) {
         String username = userProfileService.generateUsername(
                 trainee.getFirstName(), trainee.getLastName());
         String password = userProfileService.generatePassword();
@@ -39,27 +31,22 @@ public class TraineeServiceImpl implements TraineeService {
                 .password(password)
                 .build();
 
-        return traineeMapper.toResponseDto(traineeDao.save(id, traineeWithProfile));
+        return traineeDao.save(id, traineeWithProfile);
     }
 
     @Override
-    public Optional<TraineeResponseDto> findById(Long id) {
-        return traineeDao.findById(id)
-                .map(traineeMapper::toResponseDto);
+    public Optional<Trainee> findById(Long id) {
+        return traineeDao.findById(id);
     }
 
     @Override
-    public List<TraineeResponseDto> findAll() {
-        return traineeDao.findAll().stream()
-                .map(traineeMapper::toResponseDto)
-                .toList();
+    public List<Trainee> findAll() {
+        return traineeDao.findAll();
     }
 
     @Override
-    public TraineeResponseDto update(Long id, TraineeRequestDto request) {
-        Trainee trainee = traineeMapper.toEntity(request);
-
-        return traineeMapper.toResponseDto(traineeDao.update(id, trainee));
+    public Trainee update(Long id, Trainee trainee) {
+        return traineeDao.update(id, trainee);
     }
 
     @Override

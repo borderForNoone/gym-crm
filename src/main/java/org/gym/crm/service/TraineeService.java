@@ -1,19 +1,18 @@
 package org.gym.crm.service;
 
-import org.gym.crm.dto.request.TraineeRequestDto;
-import org.gym.crm.dto.responce.TraineeResponseDto;
+import org.gym.crm.model.Trainee;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface TraineeService {
-    TraineeResponseDto create(Long id, TraineeRequestDto request);
+    Trainee create(Long id, Trainee trainee);
 
-    Optional<TraineeResponseDto> findById(Long id);
+    Optional<Trainee> findById(Long id);
 
-    List<TraineeResponseDto> findAll();
+    List<Trainee> findAll();
 
-    TraineeResponseDto update(Long id, TraineeRequestDto request);
+    Trainee update(Long id, Trainee trainee);
 
     void delete(Long id);
 }

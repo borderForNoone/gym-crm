@@ -31,7 +31,7 @@ public class TrainerServiceImpl implements TrainerService {
         Trainer trainer = trainerMapper.toEntity(request);
 
         String username = userProfileService.generateUsername(
-                trainer.getFirstName(), trainer.getLastName());
+                request.getFirstName(), request.getLastName());
         String password = userProfileService.generatePassword();
 
         Trainer trainerWithProfile = trainer.toBuilder()

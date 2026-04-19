@@ -1,15 +1,14 @@
 package org.gym.crm.service;
 
-import org.gym.crm.dto.request.TrainingRequestDto;
-import org.gym.crm.dto.responce.TrainingResponseDto;
+import org.gym.crm.model.Training;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface TrainingService {
-    TrainingResponseDto create(TrainingRequestDto training);
+    Training create(Training training);
 
-    Optional<TrainingResponseDto> findById(Long id);
+    Optional<Training> findById(Long id);
 
-    List<TrainingResponseDto> findAll();
+    List<Training> findAll();
 }

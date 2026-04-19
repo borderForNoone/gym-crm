@@ -1,12 +1,17 @@
 package org.gym.crm.service.impl;
 
-import org.gym.crm.service.TraineeService;
-import org.gym.crm.service.TrainerService;
+import io.micrometer.common.util.StringUtils;
+import lombok.Setter;
+import org.gym.crm.dao.TraineeDao;
+import org.gym.crm.dao.TrainerDao;
+import org.gym.crm.model.Trainee;
+import org.gym.crm.model.Trainer;
 import org.gym.crm.service.UserProfileService;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.util.stream.Stream;
 
 @Service
 public class UserProfileServiceImpl implements UserProfileService {
@@ -14,22 +19,20 @@ public class UserProfileServiceImpl implements UserProfileService {
     private static final int PASSWORD_LENGTH = 10;
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    private final TraineeService traineeService;
-    private final TrainerService trainerService;
+    @Autowired
+    @Setter
+    private TraineeDao traineeDao;
 
-    public UserProfileServiceImpl(@Lazy TraineeService traineeService,
-                                  @Lazy TrainerService trainerService) {
-        this.traineeService = traineeService;
-        this.trainerService = trainerService;
-    }
+    @Autowired
+    @Setter
+    private TrainerDao trainerDao;
 
     @Override
     public String generateUsername(String firstName, String lastName) {
-        String base = firstName + "." + lastName;
+        String baseUsername = firstName + "." + lastName;
+        long duplicatesCount = countDuplicates(baseUsername);
 
-        long duplicates = countDuplicates(base);
-
-        return duplicates == 0 ? base : base + duplicates;
+        return duplicatesCount == 0 ? baseUsername : baseUsername + duplicatesCount;
     }
 
     @Override
@@ -42,19 +45,18 @@ public class UserProfileServiceImpl implements UserProfileService {
         return password.toString();
     }
 
-    private long countDuplicates(String base) {
-        long inTrainees = traineeService.findAll().stream()
-                .filter(t -> t.getUsername() != null)
-                .filter(t -> t.getUsername().equals(base)
-                        || t.getUsername().matches(base + "\\d+"))
+    private long countDuplicates(String baseUsername) {
+        return getExistingUsernames()
+                .filter(StringUtils::isNotBlank)
+                .map(username -> username.replaceAll("\\d+$", ""))
+                .filter(username -> username.equals(baseUsername))
                 .count();
+    }
 
-        long inTrainers = trainerService.findAll().stream()
-                .filter(t -> t.getUsername() != null)
-                .filter(t -> t.getUsername().equals(base)
-                        || t.getUsername().matches(base + "\\d+"))
-                .count();
-
-        return inTrainees + inTrainers;
+    private Stream<String> getExistingUsernames() {
+        return Stream.concat(
+                traineeDao.findAll().stream().map(Trainee::getUsername),
+                trainerDao.findAll().stream().map(Trainer::getUsername)
+        );
     }
 }
