@@ -14,16 +14,6 @@ public class Storage {
         storages.put(Namespace.TRAINING, trainingStorage);
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> Map<Long, T> getStorage(Namespace namespace) {
-        Object storage = storages.get(namespace);
-        if (storage == null) {
-            throw new IllegalArgumentException("Storage not found for namespace: " + namespace);
-        }
-
-        return (Map<Long, T>) storage;
-    }
-
     public TraineeStorage getTraineeStorage() {
         return (TraineeStorage) storages.get(Namespace.TRAINEE);
     }
