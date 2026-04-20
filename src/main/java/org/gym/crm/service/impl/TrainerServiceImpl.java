@@ -4,7 +4,6 @@ import lombok.Setter;
 import org.gym.crm.dao.TrainerDao;
 import org.gym.crm.dto.request.TrainerRequestDto;
 import org.gym.crm.dto.responce.TrainerResponseDto;
-import org.gym.crm.mapper.TrainerMapper;
 import org.gym.crm.model.Trainer;
 import org.gym.crm.service.TrainerService;
 import org.gym.crm.service.UserProfileService;
@@ -23,15 +22,12 @@ public class TrainerServiceImpl implements TrainerService {
     @Autowired
     private UserProfileService userProfileService;
 
-    @Autowired
-    private TrainerMapper trainerMapper;
-
     @Override
-    public TrainerResponseDto create(Long id, TrainerRequestDto request) {
-        Trainer trainer = trainerMapper.toEntity(request);
+    public Trainer create(Long id, Trainer trainer) {
 
         String username = userProfileService.generateUsername(
-                request.getFirstName(), request.getLastName());
+                trainer.getFirstName(), trainer.getLastName());
+
         String password = userProfileService.generatePassword();
 
         Trainer trainerWithProfile = trainer.toBuilder()
@@ -39,26 +35,21 @@ public class TrainerServiceImpl implements TrainerService {
                 .password(password)
                 .build();
 
-        return trainerMapper.toResponseDto(trainerDao.save(id, trainerWithProfile));
+        return trainerDao.save(id, trainerWithProfile);
     }
 
     @Override
-    public Optional<TrainerResponseDto> findById(Long id) {
-        return trainerDao.findById(id)
-                .map(trainerMapper::toResponseDto);
+    public Optional<Trainer> findById(Long id) {
+        return trainerDao.findById(id);
     }
 
     @Override
-    public List<TrainerResponseDto> findAll() {
-        return trainerDao.findAll().stream()
-                .map(trainerMapper::toResponseDto)
-                .toList();
+    public List<Trainer> findAll() {
+        return trainerDao.findAll();
     }
 
     @Override
-    public TrainerResponseDto update(Long id, TrainerRequestDto request) {
-        Trainer trainer = trainerMapper.toEntity(request);
-
-        return trainerMapper.toResponseDto(trainerDao.update(id, trainer));
+    public Trainer update(Long id, Trainer trainer) {
+        return trainerDao.update(id, trainer);
     }
 }
