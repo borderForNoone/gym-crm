@@ -106,9 +106,10 @@ class TrainerServiceImplTest {
     }
 
     private TrainingType buildFitnessType() {
-        TrainingType fitness = new TrainingType();
-        fitness.setTrainingTypeName(FITNESS);
-        return fitness;
+        TrainingType trainingType = new TrainingType();
+        trainingType.setTrainingTypeName(FITNESS);
+
+        return trainingType;
     }
 
     private Trainer buildTrainer() {
