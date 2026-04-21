@@ -90,6 +90,7 @@ class TrainingMapperTest {
     private TrainingType buildFitnessType() {
         TrainingType fitness = new TrainingType();
         fitness.setTrainingTypeName(FITNESS);
+
         return fitness;
     }
 }

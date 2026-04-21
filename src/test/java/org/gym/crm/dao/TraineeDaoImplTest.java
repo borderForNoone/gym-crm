@@ -19,7 +19,6 @@ import static org.gym.crm.util.TestConstants.FIRST_NAME;
 import static org.gym.crm.util.TestConstants.ID;
 import static org.gym.crm.util.TestConstants.LAST_NAME;
 import static org.gym.crm.util.TestConstants.NON_EXISTING_ID;
-import static org.gym.crm.util.TestConstants.NOT_FOUND_MESSAGE;
 import static org.gym.crm.util.TestConstants.TRAINEE_NOT_FOUND_MESSAGE;
 import static org.gym.crm.util.TestConstants.USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -105,12 +104,10 @@ class TraineeDaoImplTest {
 
     @Test
     void update_shouldThrowException_whenNotExists() {
-        IllegalArgumentException actual = assertThrows(
-                IllegalArgumentException.class,
-                () -> dao.update(NON_EXISTING_ID, trainee)
-        );
+        IllegalArgumentException ex =
+                assertThrows(IllegalArgumentException.class, () -> dao.update(NON_EXISTING_ID, trainee));
 
-        assertEquals(TRAINEE_NOT_FOUND_MESSAGE + NON_EXISTING_ID, actual.getMessage());
+        assertEquals(TRAINEE_NOT_FOUND_MESSAGE + NON_EXISTING_ID, ex.getMessage());
     }
 
     @Test

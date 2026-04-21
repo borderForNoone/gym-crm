@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
@@ -20,40 +21,31 @@ import static org.gym.crm.util.TestConstants.SECOND_ID;
 import static org.gym.crm.util.TestConstants.SECOND_LAST_NAME;
 import static org.gym.crm.util.TestConstants.SECOND_PASSWORD;
 import static org.gym.crm.util.TestConstants.SECOND_USERNAME;
-import static org.gym.crm.util.TestConstants.TRAINER_FIRST_NAME;
-import static org.gym.crm.util.TestConstants.TRAINER_LAST_NAME;
-import static org.gym.crm.util.TestConstants.TRAINER_USERNAME;
 import static org.gym.crm.util.TestConstants.USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CsvDataReaderTest {
-
-    private CsvDataReader csvDataReader;
+    private CsvDataReader reader;
     private String testFilePath;
 
     @BeforeEach
     void setUp() throws URISyntaxException {
-        csvDataReader = new CsvDataReader();
-        testFilePath = Paths.get(
-                Objects.requireNonNull(
-                        getClass().getClassLoader()
-                                .getResource("test-trainees.csv")
-                ).toURI()
-        ).toString();
+        reader = new CsvDataReader();
+        testFilePath = getFilePath("test-trainees.csv");
     }
 
     @Test
     void readData_shouldSkipHeader() {
-        List<String[]> result = csvDataReader.readData(testFilePath);
+        List<String[]> result = reader.readData(testFilePath);
 
         assertEquals(2, result.size());
     }
 
     @Test
     void readData_shouldParseFirstRowCorrectly() {
-        List<String[]> result = csvDataReader.readData(testFilePath);
+        List<String[]> result = reader.readData(testFilePath);
 
         String[] firstRow = result.getFirst();
         assertEquals("1", firstRow[0]);
@@ -69,7 +61,7 @@ class CsvDataReaderTest {
 
     @Test
     void readData_shouldParseSecondRowCorrectly() {
-        List<String[]> result = csvDataReader.readData(testFilePath);
+        List<String[]> result = reader.readData(testFilePath);
 
         String[] secondRow = result.get(1);
 
@@ -86,7 +78,7 @@ class CsvDataReaderTest {
 
     @Test
     void readData_shouldHandleBlankField() {
-        List<String[]> result = csvDataReader.readData(testFilePath);
+        List<String[]> result = reader.readData(testFilePath);
 
         String[] secondRow = result.get(1);
         assertEquals("", secondRow[6]);
@@ -94,28 +86,25 @@ class CsvDataReaderTest {
 
     @Test
     void readData_shouldThrowStorageException_whenFileNotFound() {
-        StorageException ex = assertThrows(
-                StorageException.class,
-                () -> csvDataReader.readData("non-existent-file.csv")
+        StorageException ex = assertThrows(StorageException.class,
+                () -> reader.readData("non-existent-file.csv")
         );
 
-        assertEquals(
-                "Failed to read CSV file: non-existent-file.csv",
-                ex.getMessage()
-        );
+        assertEquals("Failed to read CSV file: non-existent-file.csv", ex.getMessage());
     }
 
     @Test
     void readData_shouldReturnEmptyList_whenFileHasOnlyHeader() throws URISyntaxException {
-        String headerOnlyFilePath = Paths.get(
-                Objects.requireNonNull(
-                        getClass().getClassLoader()
-                                .getResource("test-header-only.csv")
-                ).toURI()
-        ).toString();
+        String headerOnlyFilePath = getFilePath("test-header-only.csv");
 
-        List<String[]> result = csvDataReader.readData(headerOnlyFilePath);
+        List<String[]> result = reader.readData(headerOnlyFilePath);
 
         assertTrue(result.isEmpty());
+    }
+
+    private String getFilePath(String fileName) throws URISyntaxException {
+        URL resource = getClass().getClassLoader().getResource(fileName);
+
+        return Paths.get(Objects.requireNonNull(resource).toURI()).toString();
     }
 }

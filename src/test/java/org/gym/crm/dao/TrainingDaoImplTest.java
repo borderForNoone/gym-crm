@@ -92,7 +92,9 @@ class TrainingDaoImplTest {
 
     private TrainingType fitnessType() {
         TrainingType fitness = new TrainingType();
+
         fitness.setTrainingTypeName(FITNESS);
+
         return fitness;
     }
 

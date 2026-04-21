@@ -35,7 +35,7 @@ class TrainerDaoImplTest {
     @Mock
     private TrainerStorage trainerStorage;
 
-    private TrainerDaoImpl dao;
+    private TrainerDao dao;
     private Map<Long, Trainer> trainers;
     private Trainer trainer;
 
@@ -105,17 +105,16 @@ class TrainerDaoImplTest {
 
     @Test
     void update_shouldThrowException_whenNotExists() {
-        IllegalArgumentException actual = assertThrows(
-                IllegalArgumentException.class,
-                () -> dao.update(NON_EXISTING_ID, trainer)
-        );
+        IllegalArgumentException exception =
+                assertThrows(IllegalArgumentException.class, () -> dao.update(NON_EXISTING_ID, trainer));
 
-        assertEquals(NOT_FOUND_MESSAGE + NON_EXISTING_ID, actual.getMessage());
+        assertEquals(NOT_FOUND_MESSAGE + NON_EXISTING_ID, exception.getMessage());
     }
 
     private TrainingType fitnessType() {
         TrainingType fitness = new TrainingType();
         fitness.setTrainingTypeName(FITNESS);
+
         return fitness;
     }
 

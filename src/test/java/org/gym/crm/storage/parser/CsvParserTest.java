@@ -29,19 +29,18 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CsvParserTest {
-
-    private CsvParser csvParser;
+    private CsvParser parser;
 
     @BeforeEach
     void setUp() {
-        csvParser = new CsvParser();
+        parser = new CsvParser();
     }
 
     @Test
     void parseTrainee_shouldParseAllFields() {
         String[] fields = buildTraineeFields("true", "1990-01-15");
 
-        Trainee actual = csvParser.parseTrainee(fields);
+        Trainee actual = parser.parseTrainee(fields);
 
         assertEquals(FIRST_NAME, actual.getFirstName());
         assertEquals(LAST_NAME, actual.getLastName());
@@ -57,7 +56,7 @@ class CsvParserTest {
     void parseTrainee_shouldSetDateOfBirthNull_whenBlank() {
         String[] fields = buildTraineeFields("true", "");
 
-        Trainee actual = csvParser.parseTrainee(fields);
+        Trainee actual = parser.parseTrainee(fields);
 
         assertNull(actual.getDateOfBirth());
     }
@@ -66,7 +65,7 @@ class CsvParserTest {
     void parseTrainee_shouldParseIsActiveFalse() {
         String[] fields = buildTraineeFields("false", "1990-01-15");
 
-        Trainee actual = csvParser.parseTrainee(fields);
+        Trainee actual = parser.parseTrainee(fields);
 
         assertFalse(actual.isActive());
     }
@@ -75,7 +74,7 @@ class CsvParserTest {
     void parseTrainer_shouldParseAllFields() {
         String[] fields = buildTrainerFields("true", FITNESS);
 
-        Trainer actual = csvParser.parseTrainer(fields);
+        Trainer actual = parser.parseTrainer(fields);
 
         assertEquals(TRAINER_FIRST_NAME, actual.getFirstName());
         assertEquals(TRAINER_LAST_NAME, actual.getLastName());
@@ -90,7 +89,7 @@ class CsvParserTest {
     void parseTrainer_shouldParseIsActiveFalse() {
         String[] fields = buildTrainerFields("false", FITNESS);
 
-        Trainer actual = csvParser.parseTrainer(fields);
+        Trainer actual = parser.parseTrainer(fields);
 
         assertFalse(actual.isActive());
     }
@@ -99,7 +98,7 @@ class CsvParserTest {
     void parseTrainer_shouldParseSpecialization() {
         String[] fields = buildTrainerFields("true", YOGA);
 
-        Trainer actual = csvParser.parseTrainer(fields);
+        Trainer actual = parser.parseTrainer(fields);
 
         assertEquals(YOGA, actual.getSpecialization().getTrainingTypeName());
     }
@@ -108,7 +107,7 @@ class CsvParserTest {
     void parseTraining_shouldParseAllFields() {
         String[] fields = buildTrainingFields(TRAINING_NAME, FITNESS, "2024-03-15", "90");
 
-        Training actual = csvParser.parseTraining(fields);
+        Training actual = parser.parseTraining(fields);
 
         assertEquals(1L, actual.getId());
         assertEquals(2L, actual.getTraineeId());
@@ -123,7 +122,7 @@ class CsvParserTest {
     void parseTraining_shouldParseTrainingDuration() {
         String[] fields = buildTrainingFields("Evening Run", CARDIO, "2024-06-01", "45");
 
-        Training actual = csvParser.parseTraining(fields);
+        Training actual = parser.parseTraining(fields);
 
         assertEquals(45, actual.getTrainingDuration());
     }
@@ -132,12 +131,10 @@ class CsvParserTest {
     void parseTraining_shouldParseTrainingType() {
         String[] fields = buildTrainingFields("Yoga Session", YOGA, "2024-06-01", "60");
 
-        Training actual = csvParser.parseTraining(fields);
+        Training actual = parser.parseTraining(fields);
 
         assertEquals(YOGA, actual.getTrainingType().getTrainingTypeName());
     }
-
-    // ---------------- helpers ----------------
 
     private String[] buildTraineeFields(String isActive, String dateOfBirth) {
         return new String[]{

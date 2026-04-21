@@ -26,6 +26,8 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TraineeServiceImplTest {
+    private final Trainee trainee = buildTrainee();
+
     @Mock
     private TraineeDao traineeDao;
     @Mock
@@ -33,22 +35,13 @@ class TraineeServiceImplTest {
     @InjectMocks
     private TraineeServiceImpl traineeService;
 
-    private Trainee trainee;
-
-    @BeforeEach
-    void setUp() {
-        trainee = buildTrainee();
-    }
-
     @Test
     void create_shouldGenerateUsernameAndPasswordAndSave() {
         when(userProfileService.generateUsername(FIRST_NAME, LAST_NAME)).thenReturn(USERNAME);
         when(userProfileService.generatePassword()).thenReturn(PASSWORD);
 
-        Trainee expected = trainee.toBuilder()
-                .username(USERNAME)
-                .password(PASSWORD)
-                .build();
+        Trainee expected = trainee.toBuilder().username(USERNAME).password(PASSWORD).build();
+
         when(traineeDao.save(ID, expected)).thenReturn(expected);
 
         Trainee actual = traineeService.create(ID, trainee);

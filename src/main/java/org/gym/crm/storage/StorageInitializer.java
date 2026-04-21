@@ -3,8 +3,8 @@ package org.gym.crm.storage;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.gym.crm.storage.reader.CsvDataReader;
 import org.gym.crm.storage.parser.CsvParser;
+import org.gym.crm.storage.reader.CsvDataReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,8 +14,8 @@ import java.util.function.Function;
 @Component
 @RequiredArgsConstructor
 public class StorageInitializer {
-    private final CsvDataReader csvDataReader;
-    private final CsvParser csvParser;
+    private final CsvDataReader reader;
+    private final CsvParser parser;
     private final Storage storage;
 
     @Setter
@@ -32,18 +32,18 @@ public class StorageInitializer {
 
     @PostConstruct
     public void init() {
-        loadData(traineesFilePath, csvParser::parseTrainee,
+        loadData(traineesFilePath, parser::parseTrainee,
                 storage.getTraineeStorage().getTrainees());
 
-        loadData(trainersFilePath, csvParser::parseTrainer,
+        loadData(trainersFilePath, parser::parseTrainer,
                 storage.getTrainerStorage().getTrainers());
 
-        loadData(trainingsFilePath, csvParser::parseTraining,
+        loadData(trainingsFilePath, parser::parseTraining,
                 storage.getTrainingStorage().getTrainings());
     }
 
     private <T> void loadData(String filePath, Function<String[], T> parser, Map<Long, T> storageMap) {
-        csvDataReader.readData(filePath).forEach(fields ->
+        reader.readData(filePath).forEach(fields ->
                 storageMap.put(Long.parseLong(fields[0]), parser.apply(fields))
         );
     }

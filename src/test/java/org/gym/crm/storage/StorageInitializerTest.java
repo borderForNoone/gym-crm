@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,7 +76,6 @@ class StorageInitializerTest {
         trainees = new HashMap<>();
         trainers = new HashMap<>();
         trainings = new HashMap<>();
-
         trainee = buildTrainee();
         trainer = buildTrainer();
         training = buildTraining();
@@ -87,7 +87,6 @@ class StorageInitializerTest {
         when(storage.getTraineeStorage()).thenReturn(traineeStorage);
         when(storage.getTrainerStorage()).thenReturn(trainerStorage);
         when(storage.getTrainingStorage()).thenReturn(trainingStorage);
-
         when(traineeStorage.getTrainees()).thenReturn(trainees);
         when(trainerStorage.getTrainers()).thenReturn(trainers);
         when(trainingStorage.getTrainings()).thenReturn(trainings);
@@ -184,33 +183,9 @@ class StorageInitializerTest {
 
     @Test
     void init_shouldLoadMultipleTrainees() {
-        Trainee secondTrainee = Trainee.builder()
-                .firstName(SECOND_FIRST_NAME)
-                .lastName(SECOND_LAST_NAME)
-                .username(SECOND_USERNAME)
-                .isActive(true)
-                .build();
-
-        String[] firstFields = {
-                String.valueOf(ID),
-                FIRST_NAME,
-                LAST_NAME,
-                USERNAME,
-                PASSWORD,
-                "true",
-                DATE_OF_BIRTH.toString(),
-                ADDRESS
-        };
-        String[] secondFields = {
-                String.valueOf(2L),
-                SECOND_FIRST_NAME,
-                SECOND_LAST_NAME,
-                SECOND_USERNAME,
-                SECOND_PASSWORD,
-                "true",
-                SECOND_DOB.toString(),
-                SECOND_ADDRESS
-        };
+        Trainee secondTrainee = buildSecondTrainee();
+        String[] firstFields = buildTraineeFields(ID, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, DATE_OF_BIRTH, ADDRESS);
+        String[] secondFields = buildTraineeFields(2L, SECOND_FIRST_NAME, SECOND_LAST_NAME, SECOND_USERNAME, SECOND_PASSWORD, SECOND_DOB, SECOND_ADDRESS);
 
         when(csvDataReader.readData(TRAINEES_FILE)).thenReturn(List.of(firstFields, secondFields));
         when(csvDataReader.readData(TRAINERS_FILE)).thenReturn(List.of());
@@ -249,6 +224,7 @@ class StorageInitializerTest {
     private TrainingType buildFitnessType() {
         TrainingType type = new TrainingType();
         type.setTrainingTypeName(FITNESS);
+
         return type;
     }
 
@@ -261,5 +237,29 @@ class StorageInitializerTest {
                 .trainingDate(TRAINING_DATE)
                 .trainingDuration(DURATION)
                 .build();
+    }
+
+    private Trainee buildSecondTrainee() {
+        return Trainee.builder()
+                .firstName(SECOND_FIRST_NAME)
+                .lastName(SECOND_LAST_NAME)
+                .username(SECOND_USERNAME)
+                .isActive(true)
+                .build();
+    }
+
+    private String[] buildTraineeFields(Long id, String firstName, String lastName,
+                                        String username, String password,
+                                        LocalDate dateOfBirth, String address) {
+        return new String[]{
+                String.valueOf(id),
+                firstName,
+                lastName,
+                username,
+                password,
+                "true",
+                dateOfBirth.toString(),
+                address
+        };
     }
 }
