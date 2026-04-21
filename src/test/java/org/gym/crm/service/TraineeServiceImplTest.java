@@ -13,20 +13,23 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static org.gym.crm.util.TestConstants.FIRST_NAME;
+import static org.gym.crm.util.TestConstants.ID;
+import static org.gym.crm.util.TestConstants.LAST_NAME;
+import static org.gym.crm.util.TestConstants.NON_EXISTING_ID;
+import static org.gym.crm.util.TestConstants.PASSWORD;
+import static org.gym.crm.util.TestConstants.USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class TraineeServiceImplTest {
-
+class TraineeServiceImplTest {
     @Mock
     private TraineeDao traineeDao;
-
     @Mock
     private UserProfileService userProfileService;
-
     @InjectMocks
     private TraineeServiceImpl traineeService;
 
@@ -34,80 +37,84 @@ public class TraineeServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        trainee = Trainee.builder()
-                .firstName("John")
-                .lastName("Smith")
-                .isActive(true)
-                .build();
+        trainee = buildTrainee();
     }
 
     @Test
     void create_shouldGenerateUsernameAndPasswordAndSave() {
-        when(userProfileService.generateUsername("John", "Smith")).thenReturn("John.Smith");
-        when(userProfileService.generatePassword()).thenReturn("pass123456");
+        when(userProfileService.generateUsername(FIRST_NAME, LAST_NAME)).thenReturn(USERNAME);
+        when(userProfileService.generatePassword()).thenReturn(PASSWORD);
 
         Trainee expected = trainee.toBuilder()
-                .username("John.Smith")
-                .password("pass123456")
+                .username(USERNAME)
+                .password(PASSWORD)
                 .build();
-        when(traineeDao.save(1L, expected)).thenReturn(expected);
+        when(traineeDao.save(ID, expected)).thenReturn(expected);
 
-        Trainee result = traineeService.create(1L, trainee);
+        Trainee actual = traineeService.create(ID, trainee);
 
-        assertEquals("John.Smith", result.getUsername());
-        assertEquals("pass123456", result.getPassword());
-        verify(userProfileService).generateUsername("John", "Smith");
+        assertEquals(USERNAME, actual.getUsername());
+        assertEquals(PASSWORD, actual.getPassword());
+        verify(userProfileService).generateUsername(FIRST_NAME, LAST_NAME);
         verify(userProfileService).generatePassword();
-        verify(traineeDao).save(1L, expected);
+        verify(traineeDao).save(ID, expected);
     }
 
     @Test
     void findById_shouldReturnTrainee_whenExists() {
-        when(traineeDao.findById(1L)).thenReturn(Optional.of(trainee));
+        when(traineeDao.findById(ID)).thenReturn(Optional.of(trainee));
 
-        Optional<Trainee> result = traineeService.findById(1L);
+        Optional<Trainee> actual = traineeService.findById(ID);
 
-        assertTrue(result.isPresent());
-        assertEquals(trainee, result.get());
-        verify(traineeDao).findById(1L);
+        assertTrue(actual.isPresent());
+        assertEquals(trainee, actual.get());
+        verify(traineeDao).findById(ID);
     }
 
     @Test
     void findById_shouldReturnEmpty_whenNotExists() {
-        when(traineeDao.findById(1L)).thenReturn(Optional.empty());
+        when(traineeDao.findById(NON_EXISTING_ID)).thenReturn(Optional.empty());
 
-        Optional<Trainee> result = traineeService.findById(1L);
+        Optional<Trainee> actual = traineeService.findById(NON_EXISTING_ID);
 
-        assertTrue(result.isEmpty());
-        verify(traineeDao).findById(1L);
+        assertTrue(actual.isEmpty());
+        verify(traineeDao).findById(NON_EXISTING_ID);
     }
 
     @Test
     void findAll_shouldReturnAllTrainees() {
-        List<Trainee> trainees = List.of(trainee);
-        when(traineeDao.findAll()).thenReturn(trainees);
+        List<Trainee> expected = List.of(trainee);
+        when(traineeDao.findAll()).thenReturn(expected);
 
-        List<Trainee> result = traineeService.findAll();
+        List<Trainee> actual = traineeService.findAll();
 
-        assertEquals(1, result.size());
-        assertEquals(trainee, result.get(0));
+        assertEquals(expected.size(), actual.size());
+        assertEquals(expected.getFirst(), actual.getFirst());
         verify(traineeDao).findAll();
     }
 
     @Test
     void update_shouldUpdateAndReturnTrainee() {
-        when(traineeDao.update(1L, trainee)).thenReturn(trainee);
+        when(traineeDao.update(ID, trainee)).thenReturn(trainee);
 
-        Trainee result = traineeService.update(1L, trainee);
+        Trainee actual = traineeService.update(ID, trainee);
 
-        assertEquals(trainee, result);
-        verify(traineeDao).update(1L, trainee);
+        assertEquals(trainee, actual);
+        verify(traineeDao).update(ID, trainee);
     }
 
     @Test
     void delete_shouldCallDaoDelete() {
-        traineeService.delete(1L);
+        traineeService.delete(ID);
 
-        verify(traineeDao).delete(1L);
+        verify(traineeDao).delete(ID);
+    }
+
+    private Trainee buildTrainee() {
+        return Trainee.builder()
+                .firstName(FIRST_NAME)
+                .lastName(LAST_NAME)
+                .isActive(true)
+                .build();
     }
 }

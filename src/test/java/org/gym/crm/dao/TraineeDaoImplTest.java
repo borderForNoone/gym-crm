@@ -15,6 +15,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.gym.crm.util.TestConstants.FIRST_NAME;
+import static org.gym.crm.util.TestConstants.ID;
+import static org.gym.crm.util.TestConstants.LAST_NAME;
+import static org.gym.crm.util.TestConstants.NON_EXISTING_ID;
+import static org.gym.crm.util.TestConstants.NOT_FOUND_MESSAGE;
+import static org.gym.crm.util.TestConstants.TRAINEE_NOT_FOUND_MESSAGE;
+import static org.gym.crm.util.TestConstants.USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,112 +30,114 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TraineeDaoImplTest {
-
     @Mock
     private Storage storage;
-
     @Mock
     private TraineeStorage traineeStorage;
 
-    private TraineeDaoImpl traineeDao;
+    private TraineeDao dao;
     private Map<Long, Trainee> trainees;
     private Trainee trainee;
 
     @BeforeEach
     void setUp() {
         trainees = new HashMap<>();
-        trainee = Trainee.builder()
-                .firstName("John")
-                .lastName("Smith")
-                .username("John.Smith")
-                .isActive(true)
-                .build();
+        trainee = buildTrainee();
 
         when(storage.getTraineeStorage()).thenReturn(traineeStorage);
         when(traineeStorage.getTrainees()).thenReturn(trainees);
 
-        traineeDao = new TraineeDaoImpl(storage);
+        dao = new TraineeDaoImpl(storage);
     }
 
     @Test
     void save_shouldPutTraineeInStorageAndReturn() {
-        Trainee result = traineeDao.save(1L, trainee);
+        Trainee actual = dao.save(ID, trainee);
 
-        assertEquals(trainee, result);
-        assertEquals(trainee, trainees.get(1L));
+        assertEquals(trainee, actual);
+        assertEquals(trainee, trainees.get(ID));
     }
 
     @Test
     void findById_shouldReturnTrainee_whenExists() {
-        trainees.put(1L, trainee);
+        trainees.put(ID, trainee);
 
-        Optional<Trainee> result = traineeDao.findById(1L);
+        Optional<Trainee> actual = dao.findById(ID);
 
-        assertTrue(result.isPresent());
-        assertEquals(trainee, result.get());
+        assertTrue(actual.isPresent());
+        assertEquals(trainee, actual.get());
     }
 
     @Test
     void findById_shouldReturnEmpty_whenNotExists() {
-        Optional<Trainee> result = traineeDao.findById(99L);
+        Optional<Trainee> actual = dao.findById(NON_EXISTING_ID);
 
-        assertTrue(result.isEmpty());
+        assertTrue(actual.isEmpty());
     }
 
     @Test
     void findAll_shouldReturnAllTrainees() {
-        trainees.put(1L, trainee);
+        trainees.put(ID, trainee);
 
-        List<Trainee> result = traineeDao.findAll();
+        List<Trainee> actual = dao.findAll();
 
-        assertEquals(1, result.size());
-        assertTrue(result.contains(trainee));
+        assertEquals(1, actual.size());
+        assertTrue(actual.contains(trainee));
     }
 
     @Test
     void findAll_shouldReturnEmptyList_whenNoTrainees() {
-        List<Trainee> result = traineeDao.findAll();
+        List<Trainee> actual = dao.findAll();
 
-        assertTrue(result.isEmpty());
+        assertTrue(actual.isEmpty());
     }
 
     @Test
     void update_shouldUpdateTrainee_whenExists() {
-        trainees.put(1L, trainee);
-        Trainee updated = trainee.toBuilder().firstName("Jane").build();
+        trainees.put(ID, trainee);
+        Trainee expected = trainee.toBuilder().firstName("Jane").build();
 
-        Trainee result = traineeDao.update(1L, updated);
+        Trainee actual = dao.update(ID, expected);
 
-        assertEquals(updated, result);
-        assertEquals(updated, trainees.get(1L));
+        assertEquals(expected, actual);
+        assertEquals(expected, trainees.get(ID));
     }
 
     @Test
     void update_shouldThrowException_whenNotExists() {
-        IllegalArgumentException ex = assertThrows(
+        IllegalArgumentException actual = assertThrows(
                 IllegalArgumentException.class,
-                () -> traineeDao.update(99L, trainee)
+                () -> dao.update(NON_EXISTING_ID, trainee)
         );
 
-        assertEquals("Trainee not found with id: 99", ex.getMessage());
+        assertEquals(TRAINEE_NOT_FOUND_MESSAGE + NON_EXISTING_ID, actual.getMessage());
     }
 
     @Test
     void delete_shouldRemoveTrainee_whenExists() {
-        trainees.put(1L, trainee);
+        trainees.put(ID, trainee);
 
-        traineeDao.delete(1L);
+        dao.delete(ID);
 
-        assertFalse(trainees.containsKey(1L));
+        assertFalse(trainees.containsKey(ID));
     }
 
     @Test
     void delete_shouldThrowException_whenNotExists() {
-        IllegalArgumentException ex = assertThrows(
+        IllegalArgumentException actual = assertThrows(
                 IllegalArgumentException.class,
-                () -> traineeDao.delete(99L)
+                () -> dao.delete(NON_EXISTING_ID)
         );
 
-        assertEquals("Trainee not found with id: 99", ex.getMessage());
+        assertEquals(TRAINEE_NOT_FOUND_MESSAGE + NON_EXISTING_ID, actual.getMessage());
+    }
+
+    private Trainee buildTrainee() {
+        return Trainee.builder()
+                .firstName(FIRST_NAME)
+                .lastName(LAST_NAME)
+                .username(USERNAME)
+                .isActive(true)
+                .build();
     }
 }

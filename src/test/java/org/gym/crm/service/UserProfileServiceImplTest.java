@@ -14,6 +14,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static org.gym.crm.util.TestConstants.ALLOWED_CHARS;
+import static org.gym.crm.util.TestConstants.FIRST_NAME;
+import static org.gym.crm.util.TestConstants.LAST_NAME;
+import static org.gym.crm.util.TestConstants.PASSWORD_LENGTH;
+import static org.gym.crm.util.TestConstants.USERNAME;
+import static org.gym.crm.util.TestConstants.USERNAME_WITH_SUFFIX_1;
+import static org.gym.crm.util.TestConstants.USERNAME_WITH_SUFFIX_2;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -22,13 +29,10 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserProfileServiceImplTest {
-
     @Mock
     private TraineeDao traineeDao;
-
     @Mock
     private TrainerDao trainerDao;
-
     @InjectMocks
     private UserProfileServiceImpl userProfileService;
 
@@ -37,63 +41,44 @@ class UserProfileServiceImplTest {
         when(traineeDao.findAll()).thenReturn(List.of());
         when(trainerDao.findAll()).thenReturn(List.of());
 
-        String result = userProfileService.generateUsername("John", "Smith");
+        String actual = userProfileService.generateUsername(FIRST_NAME, LAST_NAME);
 
-        assertEquals("John.Smith", result);
+        assertEquals(USERNAME, actual);
     }
 
     @Test
     void generateUsername_shouldReturnUsernameWithSuffix_whenDuplicateExists() {
-        Trainee existingTrainee = Trainee.builder()
-                .firstName("John")
-                .lastName("Smith")
-                .username("John.Smith")
-                .build();
-        when(traineeDao.findAll()).thenReturn(List.of(existingTrainee));
+        when(traineeDao.findAll()).thenReturn(List.of(buildTraineeWithUsername(USERNAME)));
         when(trainerDao.findAll()).thenReturn(List.of());
 
-        String result = userProfileService.generateUsername("John", "Smith");
+        String actual = userProfileService.generateUsername(FIRST_NAME, LAST_NAME);
 
-        assertEquals("John.Smith1", result);
+        assertEquals(USERNAME_WITH_SUFFIX_1, actual);
     }
 
     @Test
     void generateUsername_shouldReturnUsernameWithSuffix2_whenTwoDuplicatesExist() {
-        Trainee existingTrainee = Trainee.builder()
-                .firstName("John")
-                .lastName("Smith")
-                .username("John.Smith")
-                .build();
-        TrainingType fitness = new TrainingType();
-        Trainer existingTrainer = Trainer.builder()
-                .firstName("John")
-                .lastName("Smith")
-                .username("John.Smith1")
-                .specialization(fitness)
-                .build();
-        when(traineeDao.findAll()).thenReturn(List.of(existingTrainee));
-        when(trainerDao.findAll()).thenReturn(List.of(existingTrainer));
+        when(traineeDao.findAll()).thenReturn(List.of(buildTraineeWithUsername(USERNAME)));
+        when(trainerDao.findAll()).thenReturn(List.of(buildTrainerWithUsername(USERNAME_WITH_SUFFIX_1)));
 
-        String result = userProfileService.generateUsername("John", "Smith");
+        String actual = userProfileService.generateUsername(FIRST_NAME, LAST_NAME);
 
-        assertEquals("John.Smith2", result);
+        assertEquals(USERNAME_WITH_SUFFIX_2, actual);
     }
 
     @Test
     void generatePassword_shouldReturn10CharString() {
-        String password = userProfileService.generatePassword();
+        String actual = userProfileService.generatePassword();
 
-        assertNotNull(password);
-        assertEquals(10, password.length());
+        assertNotNull(actual);
+        assertEquals(PASSWORD_LENGTH, actual.length());
     }
 
     @Test
     void generatePassword_shouldContainOnlyAllowedChars() {
-        String allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        String actual = userProfileService.generatePassword();
 
-        String password = userProfileService.generatePassword();
-
-        assertTrue(password.chars().allMatch(c -> allowed.indexOf(c) >= 0));
+        assertTrue(actual.chars().allMatch(c -> ALLOWED_CHARS.indexOf(c) >= 0));
     }
 
     @Test
@@ -102,5 +87,22 @@ class UserProfileServiceImplTest {
         String second = userProfileService.generatePassword();
 
         assertNotEquals(first, second);
+    }
+
+    private Trainee buildTraineeWithUsername(String username) {
+        return Trainee.builder()
+                .firstName(FIRST_NAME)
+                .lastName(LAST_NAME)
+                .username(username)
+                .build();
+    }
+
+    private Trainer buildTrainerWithUsername(String username) {
+        return Trainer.builder()
+                .firstName(FIRST_NAME)
+                .lastName(LAST_NAME)
+                .username(username)
+                .specialization(new TrainingType())
+                .build();
     }
 }

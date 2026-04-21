@@ -11,91 +11,100 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.gym.crm.util.TestConstants.DURATION;
+import static org.gym.crm.util.TestConstants.FITNESS;
+import static org.gym.crm.util.TestConstants.ID;
+import static org.gym.crm.util.TestConstants.NON_EXISTING_ID;
+import static org.gym.crm.util.TestConstants.TRAINING_DATE;
+import static org.gym.crm.util.TestConstants.TRAINING_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TrainingDaoImplTest {
-
     @Mock
     private Storage storage;
-
     @Mock
     private TrainingStorage trainingStorage;
 
-    private TrainingDaoImpl trainingDao;
+    private TrainingDaoImpl dao;
     private Map<Long, Training> trainings;
     private Training training;
 
     @BeforeEach
     void setUp() {
         trainings = new HashMap<>();
-
-        TrainingType fitness = new TrainingType();
-        fitness.setTrainingTypeName("FITNESS");
-
-        training = Training.builder()
-                .id(1L)
-                .traineeId(1L)
-                .trainerId(1L)
-                .trainingName("Morning Workout")
-                .trainingType(fitness)
-                .trainingDate(LocalDate.of(2024, 1, 1))
-                .trainingDuration(60)
-                .build();
+        training = buildTraining();
 
         when(storage.getTrainingStorage()).thenReturn(trainingStorage);
         when(trainingStorage.getTrainings()).thenReturn(trainings);
 
-        trainingDao = new TrainingDaoImpl(storage);
+        dao = new TrainingDaoImpl(storage);
     }
 
     @Test
     void save_shouldPutTrainingInStorageAndReturn() {
-        Training result = trainingDao.save(training);
+        Training actual = dao.save(training);
 
-        assertEquals(training, result);
-        assertEquals(training, trainings.get(1L));
+        assertEquals(training, actual);
+        assertEquals(training, trainings.get(ID));
     }
 
     @Test
     void findById_shouldReturnTraining_whenExists() {
-        trainings.put(1L, training);
+        trainings.put(ID, training);
 
-        Optional<Training> result = trainingDao.findById(1L);
+        Optional<Training> actual = dao.findById(ID);
 
-        assertTrue(result.isPresent());
-        assertEquals(training, result.get());
+        assertTrue(actual.isPresent());
+        assertEquals(training, actual.get());
     }
 
     @Test
     void findById_shouldReturnEmpty_whenNotExists() {
-        Optional<Training> result = trainingDao.findById(99L);
+        Optional<Training> actual = dao.findById(NON_EXISTING_ID);
 
-        assertTrue(result.isEmpty());
+        assertTrue(actual.isEmpty());
     }
 
     @Test
     void findAll_shouldReturnAllTrainings() {
-        trainings.put(1L, training);
+        trainings.put(ID, training);
 
-        List<Training> result = trainingDao.findAll();
+        List<Training> actual = dao.findAll();
 
-        assertEquals(1, result.size());
-        assertTrue(result.contains(training));
+        assertEquals(1, actual.size());
+        assertTrue(actual.contains(training));
     }
 
     @Test
     void findAll_shouldReturnEmptyList_whenNoTrainings() {
-        List<Training> result = trainingDao.findAll();
+        List<Training> actual = dao.findAll();
 
-        assertTrue(result.isEmpty());
+        assertTrue(actual.isEmpty());
+    }
+
+    private TrainingType fitnessType() {
+        TrainingType fitness = new TrainingType();
+        fitness.setTrainingTypeName(FITNESS);
+        return fitness;
+    }
+
+    private Training buildTraining() {
+        return Training.builder()
+                .id(ID)
+                .traineeId(ID)
+                .trainerId(ID)
+                .trainingName(TRAINING_NAME)
+                .trainingType(fitnessType())
+                .trainingDate(TRAINING_DATE)
+                .trainingDuration(DURATION)
+                .build();
     }
 }

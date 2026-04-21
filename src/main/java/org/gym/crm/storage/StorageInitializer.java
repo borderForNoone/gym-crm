@@ -3,7 +3,7 @@ package org.gym.crm.storage;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.gym.crm.storage.dataReader.CsvDataReader;
+import org.gym.crm.storage.reader.CsvDataReader;
 import org.gym.crm.storage.parser.CsvParser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

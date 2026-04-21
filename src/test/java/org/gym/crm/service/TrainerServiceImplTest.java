@@ -14,6 +14,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static org.gym.crm.util.TestConstants.FIRST_NAME;
+import static org.gym.crm.util.TestConstants.FITNESS;
+import static org.gym.crm.util.TestConstants.ID;
+import static org.gym.crm.util.TestConstants.LAST_NAME;
+import static org.gym.crm.util.TestConstants.NON_EXISTING_ID;
+import static org.gym.crm.util.TestConstants.PASSWORD;
+import static org.gym.crm.util.TestConstants.USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
@@ -21,13 +28,10 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TrainerServiceImplTest {
-
     @Mock
     private TrainerDao trainerDao;
-
     @Mock
     private UserProfileService userProfileService;
-
     @InjectMocks
     private TrainerServiceImpl trainerService;
 
@@ -35,76 +39,84 @@ class TrainerServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        TrainingType fitness = new TrainingType();
-        fitness.setTrainingTypeName("FITNESS");
-
-        trainer = Trainer.builder()
-                .firstName("Jane")
-                .lastName("Doe")
-                .isActive(true)
-                .specialization(fitness)
-                .build();
+        trainer = buildTrainer();
     }
 
     @Test
     void create_shouldGenerateUsernameAndPasswordAndSave() {
-        when(userProfileService.generateUsername("Jane", "Doe")).thenReturn("Jane.Doe");
-        when(userProfileService.generatePassword()).thenReturn("pass123456");
+        when(userProfileService.generateUsername(FIRST_NAME, LAST_NAME)).thenReturn(USERNAME);
+        when(userProfileService.generatePassword()).thenReturn(PASSWORD);
+
         Trainer expected = trainer.toBuilder()
-                .username("Jane.Doe")
-                .password("pass123456")
+                .username(USERNAME)
+                .password(PASSWORD)
                 .build();
-        when(trainerDao.save(1L, expected)).thenReturn(expected);
+        when(trainerDao.save(ID, expected)).thenReturn(expected);
 
-        Trainer result = trainerService.create(1L, trainer);
+        Trainer actual = trainerService.create(ID, trainer);
 
-        assertEquals("Jane.Doe", result.getUsername());
-        assertEquals("pass123456", result.getPassword());
-        verify(userProfileService).generateUsername("Jane", "Doe");
+        assertEquals(USERNAME, actual.getUsername());
+        assertEquals(PASSWORD, actual.getPassword());
+        verify(userProfileService).generateUsername(FIRST_NAME, LAST_NAME);
         verify(userProfileService).generatePassword();
-        verify(trainerDao).save(1L, expected);
+        verify(trainerDao).save(ID, expected);
     }
 
     @Test
     void findById_shouldReturnTrainer_whenExists() {
-        when(trainerDao.findById(1L)).thenReturn(Optional.of(trainer));
+        when(trainerDao.findById(ID)).thenReturn(Optional.of(trainer));
 
-        Optional<Trainer> result = trainerService.findById(1L);
+        Optional<Trainer> actual = trainerService.findById(ID);
 
-        assertTrue(result.isPresent());
-        assertEquals(trainer, result.get());
-        verify(trainerDao).findById(1L);
+        assertTrue(actual.isPresent());
+        assertEquals(trainer, actual.get());
+        verify(trainerDao).findById(ID);
     }
 
     @Test
     void findById_shouldReturnEmpty_whenNotExists() {
-        when(trainerDao.findById(1L)).thenReturn(Optional.empty());
+        when(trainerDao.findById(NON_EXISTING_ID)).thenReturn(Optional.empty());
 
-        Optional<Trainer> result = trainerService.findById(1L);
+        Optional<Trainer> actual = trainerService.findById(NON_EXISTING_ID);
 
-        assertTrue(result.isEmpty());
-        verify(trainerDao).findById(1L);
+        assertTrue(actual.isEmpty());
+        verify(trainerDao).findById(NON_EXISTING_ID);
     }
 
     @Test
     void findAll_shouldReturnAllTrainers() {
-        List<Trainer> trainers = List.of(trainer);
-        when(trainerDao.findAll()).thenReturn(trainers);
+        List<Trainer> expected = List.of(trainer);
+        when(trainerDao.findAll()).thenReturn(expected);
 
-        List<Trainer> result = trainerService.findAll();
+        List<Trainer> actual = trainerService.findAll();
 
-        assertEquals(1, result.size());
-        assertEquals(trainer, result.get(0));
+        assertEquals(expected.size(), actual.size());
+        assertEquals(expected.getFirst(), actual.getFirst());
         verify(trainerDao).findAll();
     }
 
     @Test
     void update_shouldUpdateAndReturnTrainer() {
-        when(trainerDao.update(1L, trainer)).thenReturn(trainer);
+        when(trainerDao.update(ID, trainer)).thenReturn(trainer);
 
-        Trainer result = trainerService.update(1L, trainer);
+        Trainer actual = trainerService.update(ID, trainer);
 
-        assertEquals(trainer, result);
-        verify(trainerDao).update(1L, trainer);
+        assertEquals(trainer, actual);
+        verify(trainerDao).update(ID, trainer);
+    }
+
+    private TrainingType buildFitnessType() {
+        TrainingType fitness = new TrainingType();
+        fitness.setTrainingTypeName(FITNESS);
+        return fitness;
+    }
+
+    private Trainer buildTrainer() {
+        return Trainer.builder()
+                .firstName(FIRST_NAME)
+                .lastName(LAST_NAME)
+                .isActive(true)
+                .specialization(buildFitnessType())
+                .build();
     }
 }

@@ -3,8 +3,9 @@ package org.gym.crm.storage;
 import org.gym.crm.model.Trainee;
 import org.gym.crm.model.Trainer;
 import org.gym.crm.model.Training;
-import org.gym.crm.storage.dataReader.CsvDataReader;
+import org.gym.crm.model.TrainingType;
 import org.gym.crm.storage.parser.CsvParser;
+import org.gym.crm.storage.reader.CsvDataReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,12 +13,34 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.gym.crm.util.TestConstants.ADDRESS;
+import static org.gym.crm.util.TestConstants.DATE_OF_BIRTH;
+import static org.gym.crm.util.TestConstants.DURATION;
+import static org.gym.crm.util.TestConstants.FIRST_NAME;
+import static org.gym.crm.util.TestConstants.FITNESS;
+import static org.gym.crm.util.TestConstants.ID;
+import static org.gym.crm.util.TestConstants.LAST_NAME;
+import static org.gym.crm.util.TestConstants.PASSWORD;
+import static org.gym.crm.util.TestConstants.SECOND_ADDRESS;
+import static org.gym.crm.util.TestConstants.SECOND_DOB;
+import static org.gym.crm.util.TestConstants.SECOND_FIRST_NAME;
+import static org.gym.crm.util.TestConstants.SECOND_LAST_NAME;
+import static org.gym.crm.util.TestConstants.SECOND_PASSWORD;
+import static org.gym.crm.util.TestConstants.SECOND_USERNAME;
+import static org.gym.crm.util.TestConstants.TRAINEES_FILE;
+import static org.gym.crm.util.TestConstants.TRAINERS_FILE;
+import static org.gym.crm.util.TestConstants.TRAINER_FIRST_NAME;
+import static org.gym.crm.util.TestConstants.TRAINER_LAST_NAME;
+import static org.gym.crm.util.TestConstants.TRAINER_USERNAME;
+import static org.gym.crm.util.TestConstants.TRAININGS_FILE;
+import static org.gym.crm.util.TestConstants.TRAINING_DATE;
+import static org.gym.crm.util.TestConstants.TRAINING_NAME;
+import static org.gym.crm.util.TestConstants.USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
@@ -25,32 +48,24 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class StorageInitializerTest {
-
     @Mock
     private CsvDataReader csvDataReader;
-
     @Mock
     private CsvParser csvParser;
-
     @Mock
     private Storage storage;
-
     @Mock
     private TraineeStorage traineeStorage;
-
     @Mock
     private TrainerStorage trainerStorage;
-
     @Mock
     private TrainingStorage trainingStorage;
-
     @InjectMocks
     private StorageInitializer storageInitializer;
 
     private Map<Long, Trainee> trainees;
     private Map<Long, Trainer> trainers;
     private Map<Long, Training> trainings;
-
     private Trainee trainee;
     private Trainer trainer;
     private Training training;
@@ -61,34 +76,13 @@ class StorageInitializerTest {
         trainers = new HashMap<>();
         trainings = new HashMap<>();
 
-        trainee = Trainee.builder()
-                .firstName("John")
-                .lastName("Smith")
-                .username("John.Smith")
-                .isActive(true)
-                .dateOfBirth(LocalDate.of(1990, 1, 1))
-                .address("123 Main St")
-                .build();
+        trainee = buildTrainee();
+        trainer = buildTrainer();
+        training = buildTraining();
 
-        trainer = Trainer.builder()
-                .firstName("Jane")
-                .lastName("Doe")
-                .username("Jane.Doe")
-                .isActive(true)
-                .build();
-
-        training = Training.builder()
-                .id(1L)
-                .traineeId(1L)
-                .trainerId(1L)
-                .trainingName("Morning Workout")
-                .trainingDate(LocalDate.of(2024, 1, 1))
-                .trainingDuration(60)
-                .build();
-
-        storageInitializer.setTraineesFilePath("trainees.csv");
-        storageInitializer.setTrainersFilePath("trainers.csv");
-        storageInitializer.setTrainingsFilePath("trainings.csv");
+        storageInitializer.setTraineesFilePath(TRAINEES_FILE);
+        storageInitializer.setTrainersFilePath(TRAINERS_FILE);
+        storageInitializer.setTrainingsFilePath(TRAININGS_FILE);
 
         when(storage.getTraineeStorage()).thenReturn(traineeStorage);
         when(storage.getTrainerStorage()).thenReturn(trainerStorage);
@@ -102,11 +96,20 @@ class StorageInitializerTest {
     @Test
     void init_shouldLoadTrainees() {
         List<String[]> traineeData = new ArrayList<>();
-        traineeData.add(new String[]{"1", "John", "Smith", "John.Smith", "pass123", "true", "1990-01-01", "123 Main St"});
+        traineeData.add(new String[]{
+                String.valueOf(ID),
+                FIRST_NAME,
+                LAST_NAME,
+                USERNAME,
+                PASSWORD,
+                "true",
+                DATE_OF_BIRTH.toString(),
+                ADDRESS
+        });
 
-        when(csvDataReader.readData("trainees.csv")).thenReturn(traineeData);
-        when(csvDataReader.readData("trainers.csv")).thenReturn(new ArrayList<>());
-        when(csvDataReader.readData("trainings.csv")).thenReturn(new ArrayList<>());
+        when(csvDataReader.readData(TRAINEES_FILE)).thenReturn(traineeData);
+        when(csvDataReader.readData(TRAINERS_FILE)).thenReturn(new ArrayList<>());
+        when(csvDataReader.readData(TRAININGS_FILE)).thenReturn(new ArrayList<>());
         when(csvParser.parseTrainee(traineeData.getFirst())).thenReturn(trainee);
 
         storageInitializer.init();
@@ -119,11 +122,19 @@ class StorageInitializerTest {
     @Test
     void init_shouldLoadTrainers() {
         List<String[]> trainerData = new ArrayList<>();
-        trainerData.add(new String[]{"1", "Jane", "Doe", "Jane.Doe", "pass123", "true", "FITNESS"});
+        trainerData.add(new String[]{
+                String.valueOf(ID),
+                TRAINER_FIRST_NAME,
+                TRAINER_LAST_NAME,
+                TRAINER_USERNAME,
+                PASSWORD,
+                "true",
+                FITNESS
+        });
 
-        when(csvDataReader.readData("trainees.csv")).thenReturn(new ArrayList<>());
-        when(csvDataReader.readData("trainers.csv")).thenReturn(trainerData);
-        when(csvDataReader.readData("trainings.csv")).thenReturn(new ArrayList<>());
+        when(csvDataReader.readData(TRAINEES_FILE)).thenReturn(new ArrayList<>());
+        when(csvDataReader.readData(TRAINERS_FILE)).thenReturn(trainerData);
+        when(csvDataReader.readData(TRAININGS_FILE)).thenReturn(new ArrayList<>());
         when(csvParser.parseTrainer(trainerData.getFirst())).thenReturn(trainer);
 
         storageInitializer.init();
@@ -136,11 +147,19 @@ class StorageInitializerTest {
     @Test
     void init_shouldLoadTrainings() {
         List<String[]> trainingData = new ArrayList<>();
-        trainingData.add(new String[]{"1", "1", "1", "Morning Workout", "FITNESS", "2024-01-01", "60"});
+        trainingData.add(new String[]{
+                String.valueOf(ID),
+                String.valueOf(ID),
+                String.valueOf(ID),
+                TRAINING_NAME,
+                FITNESS,
+                TRAINING_DATE.toString(),
+                String.valueOf(DURATION)
+        });
 
-        when(csvDataReader.readData("trainees.csv")).thenReturn(new ArrayList<>());
-        when(csvDataReader.readData("trainers.csv")).thenReturn(new ArrayList<>());
-        when(csvDataReader.readData("trainings.csv")).thenReturn(trainingData);
+        when(csvDataReader.readData(TRAINEES_FILE)).thenReturn(new ArrayList<>());
+        when(csvDataReader.readData(TRAINERS_FILE)).thenReturn(new ArrayList<>());
+        when(csvDataReader.readData(TRAININGS_FILE)).thenReturn(trainingData);
         when(csvParser.parseTraining(trainingData.getFirst())).thenReturn(training);
 
         storageInitializer.init();
@@ -152,9 +171,9 @@ class StorageInitializerTest {
 
     @Test
     void init_shouldHandleEmptyFiles() {
-        when(csvDataReader.readData("trainees.csv")).thenReturn(List.of());
-        when(csvDataReader.readData("trainers.csv")).thenReturn(List.of());
-        when(csvDataReader.readData("trainings.csv")).thenReturn(List.of());
+        when(csvDataReader.readData(TRAINEES_FILE)).thenReturn(List.of());
+        when(csvDataReader.readData(TRAINERS_FILE)).thenReturn(List.of());
+        when(csvDataReader.readData(TRAININGS_FILE)).thenReturn(List.of());
 
         storageInitializer.init();
 
@@ -166,18 +185,36 @@ class StorageInitializerTest {
     @Test
     void init_shouldLoadMultipleTrainees() {
         Trainee secondTrainee = Trainee.builder()
-                .firstName("Alice")
-                .lastName("Brown")
-                .username("Alice.Brown")
+                .firstName(SECOND_FIRST_NAME)
+                .lastName(SECOND_LAST_NAME)
+                .username(SECOND_USERNAME)
                 .isActive(true)
                 .build();
 
-        String[] firstFields = {"1", "John", "Smith", "John.Smith", "pass123", "true", "1990-01-01", "123 Main St"};
-        String[] secondFields = {"2", "Alice", "Brown", "Alice.Brown", "pass456", "true", "1995-05-05", "456 Oak Ave"};
+        String[] firstFields = {
+                String.valueOf(ID),
+                FIRST_NAME,
+                LAST_NAME,
+                USERNAME,
+                PASSWORD,
+                "true",
+                DATE_OF_BIRTH.toString(),
+                ADDRESS
+        };
+        String[] secondFields = {
+                String.valueOf(2L),
+                SECOND_FIRST_NAME,
+                SECOND_LAST_NAME,
+                SECOND_USERNAME,
+                SECOND_PASSWORD,
+                "true",
+                SECOND_DOB.toString(),
+                SECOND_ADDRESS
+        };
 
-        when(csvDataReader.readData("trainees.csv")).thenReturn(List.of(firstFields, secondFields));
-        when(csvDataReader.readData("trainers.csv")).thenReturn(List.of());
-        when(csvDataReader.readData("trainings.csv")).thenReturn(List.of());
+        when(csvDataReader.readData(TRAINEES_FILE)).thenReturn(List.of(firstFields, secondFields));
+        when(csvDataReader.readData(TRAINERS_FILE)).thenReturn(List.of());
+        when(csvDataReader.readData(TRAININGS_FILE)).thenReturn(List.of());
         when(csvParser.parseTrainee(firstFields)).thenReturn(trainee);
         when(csvParser.parseTrainee(secondFields)).thenReturn(secondTrainee);
 
@@ -186,5 +223,43 @@ class StorageInitializerTest {
         assertEquals(2, trainees.size());
         assertEquals(trainee, trainees.get(1L));
         assertEquals(secondTrainee, trainees.get(2L));
+    }
+
+    private Trainee buildTrainee() {
+        return Trainee.builder()
+                .firstName(FIRST_NAME)
+                .lastName(LAST_NAME)
+                .username(USERNAME)
+                .isActive(true)
+                .dateOfBirth(DATE_OF_BIRTH)
+                .address(ADDRESS)
+                .build();
+    }
+
+    private Trainer buildTrainer() {
+        return Trainer.builder()
+                .firstName(TRAINER_FIRST_NAME)
+                .lastName(TRAINER_LAST_NAME)
+                .username(TRAINER_USERNAME)
+                .isActive(true)
+                .specialization(buildFitnessType())
+                .build();
+    }
+
+    private TrainingType buildFitnessType() {
+        TrainingType type = new TrainingType();
+        type.setTrainingTypeName(FITNESS);
+        return type;
+    }
+
+    private Training buildTraining() {
+        return Training.builder()
+                .id(ID)
+                .traineeId(ID)
+                .trainerId(ID)
+                .trainingName(TRAINING_NAME)
+                .trainingDate(TRAINING_DATE)
+                .trainingDuration(DURATION)
+                .build();
     }
 }

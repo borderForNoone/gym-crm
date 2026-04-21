@@ -11,10 +11,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static org.gym.crm.util.TestConstants.DURATION;
+import static org.gym.crm.util.TestConstants.FITNESS;
+import static org.gym.crm.util.TestConstants.ID;
+import static org.gym.crm.util.TestConstants.NON_EXISTING_ID;
+import static org.gym.crm.util.TestConstants.TRAINING_DATE;
+import static org.gym.crm.util.TestConstants.TRAINING_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
@@ -22,10 +27,8 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TrainingServiceImplTest {
-
     @Mock
     private TrainingDao trainingDao;
-
     @InjectMocks
     private TrainingServiceImpl trainingService;
 
@@ -33,61 +36,68 @@ class TrainingServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        TrainingType fitness = new TrainingType();
-        fitness.setTrainingTypeName("FITNESS");
-
-        training = Training.builder()
-                .id(1L)
-                .traineeId(1L)
-                .trainerId(1L)
-                .trainingName("Morning Workout")
-                .trainingType(fitness)
-                .trainingDate(LocalDate.of(2024, 1, 1))
-                .trainingDuration(60)
-                .build();
+        training = buildTraining();
     }
 
     @Test
     void create_shouldSaveAndReturnTraining() {
         when(trainingDao.save(training)).thenReturn(training);
 
-        Training result = trainingService.create(training);
+        Training actual = trainingService.create(training);
 
-        assertEquals(training, result);
+        assertEquals(training, actual);
         verify(trainingDao).save(training);
     }
 
     @Test
     void findById_shouldReturnTraining_whenExists() {
-        when(trainingDao.findById(1L)).thenReturn(Optional.of(training));
+        when(trainingDao.findById(ID)).thenReturn(Optional.of(training));
 
-        Optional<Training> result = trainingService.findById(1L);
+        Optional<Training> actual = trainingService.findById(ID);
 
-        assertTrue(result.isPresent());
-        assertEquals(training, result.get());
-        verify(trainingDao).findById(1L);
+        assertTrue(actual.isPresent());
+        assertEquals(training, actual.get());
+        verify(trainingDao).findById(ID);
     }
 
     @Test
     void findById_shouldReturnEmpty_whenNotExists() {
-        when(trainingDao.findById(1L)).thenReturn(Optional.empty());
+        when(trainingDao.findById(NON_EXISTING_ID)).thenReturn(Optional.empty());
 
-        Optional<Training> result = trainingService.findById(1L);
+        Optional<Training> actual = trainingService.findById(NON_EXISTING_ID);
 
-        assertTrue(result.isEmpty());
-        verify(trainingDao).findById(1L);
+        assertTrue(actual.isEmpty());
+        verify(trainingDao).findById(NON_EXISTING_ID);
     }
 
     @Test
     void findAll_shouldReturnAllTrainings() {
-        List<Training> trainings = List.of(training);
-        when(trainingDao.findAll()).thenReturn(trainings);
+        List<Training> expected = List.of(training);
+        when(trainingDao.findAll()).thenReturn(expected);
 
-        List<Training> result = trainingService.findAll();
+        List<Training> actual = trainingService.findAll();
 
-        assertEquals(1, result.size());
-        assertEquals(training, result.get(0));
+        assertEquals(expected.size(), actual.size());
+        assertEquals(expected.getFirst(), actual.getFirst());
         verify(trainingDao).findAll();
+    }
+
+    private TrainingType buildFitnessType() {
+        TrainingType fitness = new TrainingType();
+        fitness.setTrainingTypeName(FITNESS);
+        return fitness;
+    }
+
+    private Training buildTraining() {
+        return Training.builder()
+                .id(ID)
+                .traineeId(ID)
+                .trainerId(ID)
+                .trainingName(TRAINING_NAME)
+                .trainingType(buildFitnessType())
+                .trainingDate(TRAINING_DATE)
+                .trainingDuration(DURATION)
+                .build();
     }
 }
 

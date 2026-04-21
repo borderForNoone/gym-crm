@@ -16,6 +16,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.gym.crm.util.TestConstants.FITNESS;
+import static org.gym.crm.util.TestConstants.ID;
+import static org.gym.crm.util.TestConstants.NON_EXISTING_ID;
+import static org.gym.crm.util.TestConstants.NOT_FOUND_MESSAGE;
+import static org.gym.crm.util.TestConstants.TRAINER_FIRST_NAME;
+import static org.gym.crm.util.TestConstants.TRAINER_LAST_NAME;
+import static org.gym.crm.util.TestConstants.TRAINER_USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -23,98 +30,102 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TrainerDaoImplTest {
-
     @Mock
     private Storage storage;
-
     @Mock
     private TrainerStorage trainerStorage;
 
-    private TrainerDaoImpl trainerDao;
+    private TrainerDaoImpl dao;
     private Map<Long, Trainer> trainers;
     private Trainer trainer;
 
     @BeforeEach
     void setUp() {
         trainers = new HashMap<>();
-
-        TrainingType fitness = new TrainingType();
-        fitness.setTrainingTypeName("FITNESS");
-
-        trainer = Trainer.builder()
-                .firstName("Jane")
-                .lastName("Doe")
-                .username("Jane.Doe")
-                .isActive(true)
-                .specialization(fitness)
-                .build();
+        trainer = buildTrainer();
 
         when(storage.getTrainerStorage()).thenReturn(trainerStorage);
         when(trainerStorage.getTrainers()).thenReturn(trainers);
 
-        trainerDao = new TrainerDaoImpl(storage);
+        dao = new TrainerDaoImpl(storage);
     }
 
     @Test
     void save_shouldPutTrainerInStorageAndReturn() {
-        Trainer result = trainerDao.save(1L, trainer);
+        Trainer actual = dao.save(ID, trainer);
 
-        assertEquals(trainer, result);
-        assertEquals(trainer, trainers.get(1L));
+        assertEquals(trainer, actual);
+        assertEquals(trainer, trainers.get(ID));
     }
 
     @Test
     void findById_shouldReturnTrainer_whenExists() {
-        trainers.put(1L, trainer);
+        trainers.put(ID, trainer);
 
-        Optional<Trainer> result = trainerDao.findById(1L);
+        Optional<Trainer> actual = dao.findById(ID);
 
-        assertTrue(result.isPresent());
-        assertEquals(trainer, result.get());
+        assertTrue(actual.isPresent());
+        assertEquals(trainer, actual.get());
     }
 
     @Test
     void findById_shouldReturnEmpty_whenNotExists() {
-        Optional<Trainer> result = trainerDao.findById(99L);
+        Optional<Trainer> actual = dao.findById(NON_EXISTING_ID);
 
-        assertTrue(result.isEmpty());
+        assertTrue(actual.isEmpty());
     }
 
     @Test
     void findAll_shouldReturnAllTrainers() {
-        trainers.put(1L, trainer);
+        trainers.put(ID, trainer);
 
-        List<Trainer> result = trainerDao.findAll();
+        List<Trainer> actual = dao.findAll();
 
-        assertEquals(1, result.size());
-        assertTrue(result.contains(trainer));
+        assertEquals(1, actual.size());
+        assertTrue(actual.contains(trainer));
     }
 
     @Test
     void findAll_shouldReturnEmptyList_whenNoTrainers() {
-        List<Trainer> result = trainerDao.findAll();
+        List<Trainer> actual = dao.findAll();
 
-        assertTrue(result.isEmpty());
+        assertTrue(actual.isEmpty());
     }
 
     @Test
     void update_shouldUpdateTrainer_whenExists() {
-        trainers.put(1L, trainer);
-        Trainer updated = trainer.toBuilder().firstName("John").build();
+        trainers.put(ID, trainer);
+        Trainer expected = trainer.toBuilder().firstName("John").build();
 
-        Trainer result = trainerDao.update(1L, updated);
+        Trainer actual = dao.update(ID, expected);
 
-        assertEquals(updated, result);
-        assertEquals(updated, trainers.get(1L));
+        assertEquals(expected, actual);
+        assertEquals(expected, trainers.get(ID));
     }
 
     @Test
     void update_shouldThrowException_whenNotExists() {
-        IllegalArgumentException ex = assertThrows(
+        IllegalArgumentException actual = assertThrows(
                 IllegalArgumentException.class,
-                () -> trainerDao.update(99L, trainer)
+                () -> dao.update(NON_EXISTING_ID, trainer)
         );
 
-        assertEquals("Trainer not found with id: 99", ex.getMessage());
+        assertEquals(NOT_FOUND_MESSAGE + NON_EXISTING_ID, actual.getMessage());
+    }
+
+    private TrainingType fitnessType() {
+        TrainingType fitness = new TrainingType();
+        fitness.setTrainingTypeName(FITNESS);
+        return fitness;
+    }
+
+    private Trainer buildTrainer() {
+        return Trainer.builder()
+                .firstName(TRAINER_FIRST_NAME)
+                .lastName(TRAINER_LAST_NAME)
+                .username(TRAINER_USERNAME)
+                .isActive(true)
+                .specialization(fitnessType())
+                .build();
     }
 }

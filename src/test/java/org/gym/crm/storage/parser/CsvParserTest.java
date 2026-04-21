@@ -8,6 +8,21 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
+import static org.gym.crm.util.TestConstants.ADDRESS;
+import static org.gym.crm.util.TestConstants.CARDIO;
+import static org.gym.crm.util.TestConstants.FIRST_NAME;
+import static org.gym.crm.util.TestConstants.FITNESS;
+import static org.gym.crm.util.TestConstants.ID;
+import static org.gym.crm.util.TestConstants.LAST_NAME;
+import static org.gym.crm.util.TestConstants.PASSWORD;
+import static org.gym.crm.util.TestConstants.SECOND_ID;
+import static org.gym.crm.util.TestConstants.THIRD_ID;
+import static org.gym.crm.util.TestConstants.TRAINER_FIRST_NAME;
+import static org.gym.crm.util.TestConstants.TRAINER_LAST_NAME;
+import static org.gym.crm.util.TestConstants.TRAINER_USERNAME;
+import static org.gym.crm.util.TestConstants.TRAINING_NAME;
+import static org.gym.crm.util.TestConstants.USERNAME;
+import static org.gym.crm.util.TestConstants.YOGA;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -24,101 +39,142 @@ class CsvParserTest {
 
     @Test
     void parseTrainee_shouldParseAllFields() {
-        String[] fields = {"1", "John", "Smith", "John.Smith", "pass123", "true", "1990-01-15", "123 Main St", "1"};
+        String[] fields = buildTraineeFields("true", "1990-01-15");
 
-        Trainee result = csvParser.parseTrainee(fields);
+        Trainee actual = csvParser.parseTrainee(fields);
 
-        assertEquals("John", result.getFirstName());
-        assertEquals("Smith", result.getLastName());
-        assertEquals("John.Smith", result.getUsername());
-        assertEquals("pass123", result.getPassword());
-        assertTrue(result.isActive());
-        assertEquals(LocalDate.of(1990, 1, 15), result.getDateOfBirth());
-        assertEquals("123 Main St", result.getAddress());
-        assertEquals(1L, result.getUserId());
+        assertEquals(FIRST_NAME, actual.getFirstName());
+        assertEquals(LAST_NAME, actual.getLastName());
+        assertEquals(USERNAME, actual.getUsername());
+        assertEquals(PASSWORD, actual.getPassword());
+        assertTrue(actual.isActive());
+        assertEquals(LocalDate.of(1990, 1, 15), actual.getDateOfBirth());
+        assertEquals(ADDRESS, actual.getAddress());
+        assertEquals(Long.parseLong(ID.toString()), actual.getUserId());
     }
 
     @Test
     void parseTrainee_shouldSetDateOfBirthNull_whenBlank() {
-        String[] fields = {"1", "John", "Smith", "John.Smith", "pass123", "true", "", "123 Main St", "1"};
+        String[] fields = buildTraineeFields("true", "");
 
-        Trainee result = csvParser.parseTrainee(fields);
+        Trainee actual = csvParser.parseTrainee(fields);
 
-        assertNull(result.getDateOfBirth());
+        assertNull(actual.getDateOfBirth());
     }
 
     @Test
     void parseTrainee_shouldParseIsActiveFalse() {
-        String[] fields = {"1", "John", "Smith", "John.Smith", "pass123", "false", "1990-01-15", "123 Main St", "1"};
+        String[] fields = buildTraineeFields("false", "1990-01-15");
 
-        Trainee result = csvParser.parseTrainee(fields);
+        Trainee actual = csvParser.parseTrainee(fields);
 
-        assertFalse(result.isActive());
+        assertFalse(actual.isActive());
     }
 
     @Test
     void parseTrainer_shouldParseAllFields() {
-        String[] fields = {"1", "Jane", "Doe", "Jane.Doe", "pass456", "true", "FITNESS", "2"};
+        String[] fields = buildTrainerFields("true", FITNESS);
 
-        Trainer result = csvParser.parseTrainer(fields);
+        Trainer actual = csvParser.parseTrainer(fields);
 
-        assertEquals("Jane", result.getFirstName());
-        assertEquals("Doe", result.getLastName());
-        assertEquals("Jane.Doe", result.getUsername());
-        assertEquals("pass456", result.getPassword());
-        assertTrue(result.isActive());
-        assertEquals("FITNESS", result.getSpecialization().getTrainingTypeName());
-        assertEquals(2L, result.getUserId());
+        assertEquals(TRAINER_FIRST_NAME, actual.getFirstName());
+        assertEquals(TRAINER_LAST_NAME, actual.getLastName());
+        assertEquals(TRAINER_USERNAME, actual.getUsername());
+        assertEquals(PASSWORD, actual.getPassword());
+        assertTrue(actual.isActive());
+        assertEquals(FITNESS, actual.getSpecialization().getTrainingTypeName());
+        assertEquals(Long.parseLong(SECOND_ID.toString()), actual.getUserId());
     }
 
     @Test
     void parseTrainer_shouldParseIsActiveFalse() {
-        String[] fields = {"1", "Jane", "Doe", "Jane.Doe", "pass456", "false", "FITNESS", "2"};
+        String[] fields = buildTrainerFields("false", FITNESS);
 
-        Trainer result = csvParser.parseTrainer(fields);
+        Trainer actual = csvParser.parseTrainer(fields);
 
-        assertFalse(result.isActive());
+        assertFalse(actual.isActive());
     }
 
     @Test
     void parseTrainer_shouldParseSpecialization() {
-        String[] fields = {"1", "Jane", "Doe", "Jane.Doe", "pass456", "true", "YOGA", "2"};
+        String[] fields = buildTrainerFields("true", YOGA);
 
-        Trainer result = csvParser.parseTrainer(fields);
+        Trainer actual = csvParser.parseTrainer(fields);
 
-        assertEquals("YOGA", result.getSpecialization().getTrainingTypeName());
+        assertEquals(YOGA, actual.getSpecialization().getTrainingTypeName());
     }
 
     @Test
     void parseTraining_shouldParseAllFields() {
-        String[] fields = {"1", "2", "3", "Morning Workout", "FITNESS", "2024-03-15", "90"};
+        String[] fields = buildTrainingFields(TRAINING_NAME, FITNESS, "2024-03-15", "90");
 
-        Training result = csvParser.parseTraining(fields);
+        Training actual = csvParser.parseTraining(fields);
 
-        assertEquals(1L, result.getId());
-        assertEquals(2L, result.getTraineeId());
-        assertEquals(3L, result.getTrainerId());
-        assertEquals("Morning Workout", result.getTrainingName());
-        assertEquals("FITNESS", result.getTrainingType().getTrainingTypeName());
-        assertEquals(LocalDate.of(2024, 3, 15), result.getTrainingDate());
-        assertEquals(90, result.getTrainingDuration());
+        assertEquals(1L, actual.getId());
+        assertEquals(2L, actual.getTraineeId());
+        assertEquals(3L, actual.getTrainerId());
+        assertEquals(TRAINING_NAME, actual.getTrainingName());
+        assertEquals(FITNESS, actual.getTrainingType().getTrainingTypeName());
+        assertEquals(LocalDate.of(2024, 3, 15), actual.getTrainingDate());
+        assertEquals(90, actual.getTrainingDuration());
     }
 
     @Test
     void parseTraining_shouldParseTrainingDuration() {
-        String[] fields = {"1", "2", "3", "Evening Run", "CARDIO", "2024-06-01", "45"};
+        String[] fields = buildTrainingFields("Evening Run", CARDIO, "2024-06-01", "45");
 
-        Training result = csvParser.parseTraining(fields);
+        Training actual = csvParser.parseTraining(fields);
 
-        assertEquals(45, result.getTrainingDuration());
+        assertEquals(45, actual.getTrainingDuration());
     }
 
     @Test
     void parseTraining_shouldParseTrainingType() {
-        String[] fields = {"1", "2", "3", "Yoga Session", "YOGA", "2024-06-01", "60"};
+        String[] fields = buildTrainingFields("Yoga Session", YOGA, "2024-06-01", "60");
 
-        Training result = csvParser.parseTraining(fields);
+        Training actual = csvParser.parseTraining(fields);
 
-        assertEquals("YOGA", result.getTrainingType().getTrainingTypeName());
+        assertEquals(YOGA, actual.getTrainingType().getTrainingTypeName());
+    }
+
+    // ---------------- helpers ----------------
+
+    private String[] buildTraineeFields(String isActive, String dateOfBirth) {
+        return new String[]{
+                ID.toString(),
+                FIRST_NAME,
+                LAST_NAME,
+                USERNAME,
+                PASSWORD,
+                isActive,
+                dateOfBirth,
+                ADDRESS,
+                ID.toString()
+        };
+    }
+
+    private String[] buildTrainerFields(String isActive, String specialization) {
+        return new String[]{
+                ID.toString(),
+                TRAINER_FIRST_NAME,
+                TRAINER_LAST_NAME,
+                TRAINER_USERNAME,
+                PASSWORD,
+                isActive,
+                specialization,
+                SECOND_ID.toString()
+        };
+    }
+
+    private String[] buildTrainingFields(String name, String type, String date, String duration) {
+        return new String[]{
+                ID.toString(),
+                SECOND_ID.toString(),
+                THIRD_ID.toString(),
+                name,
+                type,
+                date,
+                duration
+        };
     }
 }
