@@ -1,5 +1,8 @@
 package org.gym.crm.dao;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import org.gym.crm.dao.impl.TraineeDaoImpl;
 import org.gym.crm.model.Trainee;
 import org.gym.crm.storage.Storage;
@@ -9,12 +12,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ch.qos.logback.classic.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.gym.crm.util.TestConstants.FIRST_NAME;
 import static org.gym.crm.util.TestConstants.ID;
 import static org.gym.crm.util.TestConstants.LAST_NAME;
@@ -37,6 +43,7 @@ class TraineeDaoImplTest {
     private TraineeDao dao;
     private Map<Long, Trainee> trainees;
     private Trainee trainee;
+    private ListAppender<ILoggingEvent> listAppender;
 
     @BeforeEach
     void setUp() {
@@ -47,6 +54,11 @@ class TraineeDaoImplTest {
         when(traineeStorage.getTrainees()).thenReturn(trainees);
 
         dao = new TraineeDaoImpl(storage);
+
+        Logger logger = (Logger) LoggerFactory.getLogger(TraineeDaoImpl.class);
+        listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
     }
 
     @Test
@@ -103,14 +115,6 @@ class TraineeDaoImplTest {
     }
 
     @Test
-    void update_shouldThrowException_whenNotExists() {
-        IllegalArgumentException ex =
-                assertThrows(IllegalArgumentException.class, () -> dao.update(NON_EXISTING_ID, trainee));
-
-        assertEquals(TRAINEE_NOT_FOUND_MESSAGE + NON_EXISTING_ID, ex.getMessage());
-    }
-
-    @Test
     void delete_shouldRemoveTrainee_whenExists() {
         trainees.put(ID, trainee);
 
@@ -127,6 +131,35 @@ class TraineeDaoImplTest {
         );
 
         assertEquals(TRAINEE_NOT_FOUND_MESSAGE + NON_EXISTING_ID, actual.getMessage());
+    }
+
+    @Test
+    void update_shouldLogError_whenTraineeNotFound() {
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> dao.update(NON_EXISTING_ID, trainee)
+        );
+
+        assertEquals(TRAINEE_NOT_FOUND_MESSAGE + NON_EXISTING_ID, exception.getMessage());
+
+        List<ILoggingEvent> logs = listAppender.list;
+
+        assertEquals(1, logs.size());
+        assertEquals(Level.ERROR, logs.getFirst().getLevel());
+        assertTrue(logs.getFirst()
+                .getFormattedMessage()
+                .contains(String.valueOf(NON_EXISTING_ID)));
+    }
+
+    @Test
+    void delete_shouldNotLogError_whenTraineeExists() {
+        trainees.put(ID, trainee);
+
+        dao.delete(ID);
+
+        assertThat(listAppender.list)
+                .extracting(ILoggingEvent::getLevel)
+                .doesNotContain(Level.ERROR);
     }
 
     private Trainee buildTrainee() {

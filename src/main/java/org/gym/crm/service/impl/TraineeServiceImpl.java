@@ -1,6 +1,7 @@
 package org.gym.crm.service.impl;
 
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.gym.crm.dao.TraineeDao;
 import org.gym.crm.model.Trainee;
 import org.gym.crm.service.TraineeService;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class TraineeServiceImpl implements TraineeService {
     @Autowired
@@ -22,6 +24,7 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public Trainee create(Long id, Trainee trainee) {
+        log.info("Creating trainee with first name and last name: {}, {}", trainee.getFirstName(), trainee.getLastName());
         String username = userProfileService.generateUsername(
                 trainee.getFirstName(), trainee.getLastName());
         String password = userProfileService.generatePassword();
@@ -31,26 +34,36 @@ public class TraineeServiceImpl implements TraineeService {
                 .password(password)
                 .build();
 
+        log.info("Trainee created successfully with username: {}", username);
         return traineeDao.save(id, traineeWithProfile);
     }
 
     @Override
     public Optional<Trainee> findById(Long id) {
-        return traineeDao.findById(id);
+        Optional<Trainee> trainee = traineeDao.findById(id);
+
+        if (trainee.isEmpty()) {
+            log.warn("Trainee not found with id: {}", id);
+        }
+
+        return trainee;
     }
 
     @Override
     public List<Trainee> findAll() {
+        log.debug("Fetching all trainees");
         return traineeDao.findAll();
     }
 
     @Override
     public Trainee update(Long id, Trainee trainee) {
+        log.info("Updating trainee with id={}", id);
         return traineeDao.update(id, trainee);
     }
 
     @Override
     public void delete(Long id) {
+        log.warn("Deleting trainee with id={}", id);
         traineeDao.delete(id);
     }
 }
