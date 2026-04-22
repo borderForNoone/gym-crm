@@ -1,5 +1,6 @@
 package org.gym.crm.dao.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.gym.crm.dao.TraineeDao;
 import org.gym.crm.model.Trainee;
 import org.gym.crm.storage.Storage;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Repository
 public class TraineeDaoImpl implements TraineeDao {
     private static final String TRAINEE_NOT_FOUND_MESSAGE = "Trainee not found with id: ";
@@ -40,7 +42,7 @@ public class TraineeDaoImpl implements TraineeDao {
     @Override
     public Trainee update(Long id, Trainee trainee) {
         if (!storage.getTrainees().containsKey(id)) {
-            throw new IllegalArgumentException(TRAINEE_NOT_FOUND_MESSAGE + id);
+            log.error("Failed to update trainee with id: {}", id);
         }
         storage.getTrainees().put(id, trainee);
 

@@ -1,5 +1,9 @@
 package org.gym.crm.service;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import org.gym.crm.dao.TraineeDao;
 import org.gym.crm.model.Trainee;
 import org.gym.crm.service.impl.TraineeServiceImpl;
@@ -9,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,21 +31,40 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TraineeServiceImplTest {
+
     private final Trainee trainee = buildTrainee();
 
     @Mock
     private TraineeDao traineeDao;
+
     @Mock
     private UserProfileService userProfileService;
+
     @InjectMocks
     private TraineeServiceImpl traineeService;
+
+    private Logger logger;
+    private ListAppender<ILoggingEvent> listAppender;
+
+    @BeforeEach
+    void setUp() {
+        logger = (Logger) LoggerFactory.getLogger(TraineeServiceImpl.class);
+
+        listAppender = new ListAppender<>();
+        listAppender.start();
+
+        logger.addAppender(listAppender);
+    }
 
     @Test
     void create_shouldGenerateUsernameAndPasswordAndSave() {
         when(userProfileService.generateUsername(FIRST_NAME, LAST_NAME)).thenReturn(USERNAME);
         when(userProfileService.generatePassword()).thenReturn(PASSWORD);
 
-        Trainee expected = trainee.toBuilder().username(USERNAME).password(PASSWORD).build();
+        Trainee expected = trainee.toBuilder()
+                .username(USERNAME)
+                .password(PASSWORD)
+                .build();
 
         when(traineeDao.save(ID, expected)).thenReturn(expected);
 
@@ -48,6 +72,7 @@ class TraineeServiceImplTest {
 
         assertEquals(USERNAME, actual.getUsername());
         assertEquals(PASSWORD, actual.getPassword());
+
         verify(userProfileService).generateUsername(FIRST_NAME, LAST_NAME);
         verify(userProfileService).generatePassword();
         verify(traineeDao).save(ID, expected);
@@ -61,6 +86,7 @@ class TraineeServiceImplTest {
 
         assertTrue(actual.isPresent());
         assertEquals(trainee, actual.get());
+
         verify(traineeDao).findById(ID);
     }
 
@@ -83,6 +109,7 @@ class TraineeServiceImplTest {
 
         assertEquals(expected.size(), actual.size());
         assertEquals(expected.getFirst(), actual.getFirst());
+
         verify(traineeDao).findAll();
     }
 
@@ -93,6 +120,7 @@ class TraineeServiceImplTest {
         Trainee actual = traineeService.update(ID, trainee);
 
         assertEquals(trainee, actual);
+
         verify(traineeDao).update(ID, trainee);
     }
 
@@ -101,6 +129,54 @@ class TraineeServiceImplTest {
         traineeService.delete(ID);
 
         verify(traineeDao).delete(ID);
+    }
+
+    @Test
+    void create_shouldLogInfo_whenCreatingTrainee() {
+        when(userProfileService.generateUsername(FIRST_NAME, LAST_NAME)).thenReturn(USERNAME);
+        when(userProfileService.generatePassword()).thenReturn(PASSWORD);
+
+        Trainee expected = trainee.toBuilder()
+                .username(USERNAME)
+                .password(PASSWORD)
+                .build();
+
+        when(traineeDao.save(ID, expected)).thenReturn(expected);
+
+        traineeService.create(ID, trainee);
+
+        List<ILoggingEvent> infoLogs = listAppender.list.stream()
+                .filter(e -> e.getLevel() == Level.INFO)
+                .toList();
+
+        assertEquals(2, infoLogs.size());
+        assertTrue(infoLogs.get(0).getFormattedMessage().contains(String.valueOf(ID)));
+        assertTrue(infoLogs.get(1).getFormattedMessage().contains(USERNAME));
+    }
+
+    @Test
+    void findById_shouldLogWarn_whenTraineeNotFound() {
+        when(traineeDao.findById(NON_EXISTING_ID)).thenReturn(Optional.empty());
+
+        traineeService.findById(NON_EXISTING_ID);
+
+        List<ILoggingEvent> warnLogs = listAppender.list.stream()
+                .filter(e -> e.getLevel() == Level.WARN)
+                .toList();
+
+        assertEquals(1, warnLogs.size());
+        assertTrue(warnLogs.get(0).getFormattedMessage()
+                .contains(String.valueOf(NON_EXISTING_ID)));
+    }
+
+    @Test
+    void findById_shouldNotLogWarn_whenTraineeFound() {
+        when(traineeDao.findById(ID)).thenReturn(Optional.of(trainee));
+
+        traineeService.findById(ID);
+
+        assertTrue(listAppender.list.stream()
+                .noneMatch(e -> e.getLevel() == Level.WARN));
     }
 
     private Trainee buildTrainee() {
