@@ -1,4 +1,4 @@
-package org.gym.crm.dto.responce;
+package org.gym.crm.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

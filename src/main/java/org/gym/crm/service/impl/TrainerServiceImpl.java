@@ -2,8 +2,6 @@ package org.gym.crm.service.impl;
 
 import lombok.Setter;
 import org.gym.crm.dao.TrainerDao;
-import org.gym.crm.dto.request.TrainerRequestDto;
-import org.gym.crm.dto.responce.TrainerResponseDto;
 import org.gym.crm.model.Trainer;
 import org.gym.crm.service.TrainerService;
 import org.gym.crm.service.UserProfileService;

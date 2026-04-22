@@ -1,4 +1,4 @@
-package org.gym.crm.storage.dataReader;
+package org.gym.crm.storage.reader;
 
 import org.gym.crm.storage.exception.StorageException;
 import org.springframework.stereotype.Component;

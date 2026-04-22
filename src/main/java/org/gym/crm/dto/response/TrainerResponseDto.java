@@ -1,20 +1,18 @@
-package org.gym.crm.dto.responce;
+package org.gym.crm.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.LocalDate;
+import org.gym.crm.model.TrainingType;
 
 @Getter
 @Builder
 @AllArgsConstructor
-public class TraineeResponseDto {
+public class TrainerResponseDto {
     private final Long id;
     private final String username;
     private final String firstName;
     private final String lastName;
     private final boolean isActive;
-    private final LocalDate dateOfBirth;
-    private final String address;
+    private final TrainingType specialization;
 }
