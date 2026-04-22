@@ -2,6 +2,7 @@ package org.gym.crm.service.impl;
 
 import io.micrometer.common.util.StringUtils;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.gym.crm.dao.TraineeDao;
 import org.gym.crm.dao.TrainerDao;
 import org.gym.crm.model.Trainee;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.util.stream.Stream;
 
+@Slf4j
 @Service
 public class UserProfileServiceImpl implements UserProfileService {
     private static final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -32,7 +34,10 @@ public class UserProfileServiceImpl implements UserProfileService {
         String baseUsername = firstName + "." + lastName;
         long duplicatesCount = countDuplicates(baseUsername);
 
-        return duplicatesCount == 0 ? baseUsername : baseUsername + duplicatesCount;
+        String finalUsername = duplicatesCount == 0 ? baseUsername : baseUsername + duplicatesCount;
+
+        log.debug("Generated username='{}' (duplicates={})", finalUsername, duplicatesCount);
+        return finalUsername;
     }
 
     @Override
@@ -42,6 +47,7 @@ public class UserProfileServiceImpl implements UserProfileService {
             password.append(CHARS.charAt(RANDOM.nextInt(CHARS.length())));
         }
 
+        log.debug("Generated password of length={}", PASSWORD_LENGTH);
         return password.toString();
     }
 

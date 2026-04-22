@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.gym.crm.util.TestConstants.FIRST_NAME;
 import static org.gym.crm.util.TestConstants.ID;
 import static org.gym.crm.util.TestConstants.LAST_NAME;
@@ -134,12 +135,20 @@ class TraineeDaoImplTest {
 
     @Test
     void update_shouldLogError_whenTraineeNotFound() {
-        dao.update(NON_EXISTING_ID, trainee);
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> dao.update(NON_EXISTING_ID, trainee)
+        );
+
+        assertEquals(TRAINEE_NOT_FOUND_MESSAGE + NON_EXISTING_ID, exception.getMessage());
 
         List<ILoggingEvent> logs = listAppender.list;
+
         assertEquals(1, logs.size());
         assertEquals(Level.ERROR, logs.getFirst().getLevel());
-        assertTrue(logs.getFirst().getFormattedMessage().contains(String.valueOf(NON_EXISTING_ID)));
+        assertTrue(logs.getFirst()
+                .getFormattedMessage()
+                .contains(String.valueOf(NON_EXISTING_ID)));
     }
 
     @Test
@@ -148,7 +157,9 @@ class TraineeDaoImplTest {
 
         dao.delete(ID);
 
-        assertTrue(listAppender.list.stream().noneMatch(e -> e.getLevel() == Level.ERROR));
+        assertThat(listAppender.list)
+                .extracting(ILoggingEvent::getLevel)
+                .doesNotContain(Level.ERROR);
     }
 
     private Trainee buildTrainee() {

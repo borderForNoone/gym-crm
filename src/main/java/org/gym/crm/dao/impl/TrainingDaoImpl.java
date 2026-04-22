@@ -1,5 +1,6 @@
 package org.gym.crm.dao.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.gym.crm.dao.TrainingDao;
 import org.gym.crm.model.Training;
 import org.gym.crm.storage.Storage;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Repository
 public class TrainingDaoImpl implements TrainingDao {
     private final TrainingStorage storage;
@@ -22,6 +24,7 @@ public class TrainingDaoImpl implements TrainingDao {
     public Training save(Training training) {
         storage.getTrainings().put(training.getId(), training);
 
+        log.info("Saved training with id={}", training.getId());
         return training;
     }
 
@@ -32,6 +35,7 @@ public class TrainingDaoImpl implements TrainingDao {
 
     @Override
     public List<Training> findAll() {
+        log.debug("Fetching all trainings, count={}", storage.getTrainings().size());
         return new ArrayList<>(storage.getTrainings().values());
     }
 }

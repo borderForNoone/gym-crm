@@ -26,6 +26,7 @@ public class TraineeDaoImpl implements TraineeDao {
     public Trainee save(Long id, Trainee trainee) {
         storage.getTrainees().put(id, trainee);
 
+        log.debug("Saved trainee with id={}", id);
         return trainee;
     }
 
@@ -36,6 +37,7 @@ public class TraineeDaoImpl implements TraineeDao {
 
     @Override
     public List<Trainee> findAll() {
+        log.debug("Fetching all trainees, count={}", storage.getTrainees().size());
         return new ArrayList<>(storage.getTrainees().values());
     }
 
@@ -43,6 +45,7 @@ public class TraineeDaoImpl implements TraineeDao {
     public Trainee update(Long id, Trainee trainee) {
         if (!storage.getTrainees().containsKey(id)) {
             log.error("Failed to update trainee with id: {}", id);
+            throw new IllegalArgumentException(TRAINEE_NOT_FOUND_MESSAGE + id);
         }
         storage.getTrainees().put(id, trainee);
 
@@ -52,7 +55,10 @@ public class TraineeDaoImpl implements TraineeDao {
     @Override
     public void delete(Long id) {
         if (storage.getTrainees().remove(id) == null) {
+            log.error("Failed to delete trainee, id not found={}", id);
             throw new IllegalArgumentException(TRAINEE_NOT_FOUND_MESSAGE + id);
         }
+
+        log.info("Trainee deleted successfully id={}", id);
     }
 }
