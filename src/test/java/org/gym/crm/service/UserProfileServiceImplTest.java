@@ -89,6 +89,16 @@ class UserProfileServiceImplTest {
         assertNotEquals(first, second);
     }
 
+    @Test
+    void generateUsername_shouldNotReturnExistingUsername_whenGapExists() {
+        when(traineeDao.findAll()).thenReturn(List.of(buildTraineeWithUsername(USERNAME)));
+        when(trainerDao.findAll()).thenReturn(List.of(buildTrainerWithUsername(USERNAME_WITH_SUFFIX_2)));
+
+        String actual = userProfileService.generateUsername(FIRST_NAME, LAST_NAME);
+
+        assertNotEquals(USERNAME, actual); assertNotEquals(USERNAME_WITH_SUFFIX_2, actual);
+    }
+
     private Trainee buildTraineeWithUsername(String username) {
         return Trainee.builder()
                 .firstName(FIRST_NAME)
