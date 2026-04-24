@@ -32,12 +32,21 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Override
     public String generateUsername(String firstName, String lastName) {
         String baseUsername = firstName + "." + lastName;
-        long duplicatesCount = countDuplicates(baseUsername);
 
-        String finalUsername = duplicatesCount == 0 ? baseUsername : baseUsername + duplicatesCount;
+        if (!usernameExists(baseUsername)) {
+            log.debug("Generated username='{}'", baseUsername);
+            return baseUsername;
+        }
 
-        log.debug("Generated username='{}' (duplicates={})", finalUsername, duplicatesCount);
-        return finalUsername;
+        long suffix = 1;
+        String candidate;
+        do {
+            candidate = baseUsername + suffix;
+            suffix++;
+        } while (usernameExists(candidate));
+
+        log.debug("Generated username='{}' with suffix due to duplicates", candidate);
+        return candidate;
     }
 
     @Override
@@ -64,5 +73,11 @@ public class UserProfileServiceImpl implements UserProfileService {
                 traineeDao.findAll().stream().map(Trainee::getUsername),
                 trainerDao.findAll().stream().map(Trainer::getUsername)
         );
+    }
+
+    private boolean usernameExists(String username) {
+        return getExistingUsernames()
+                .filter(StringUtils::isNotBlank)
+                .anyMatch(username::equals);
     }
 }
