@@ -60,14 +60,6 @@ public class UserProfileServiceImpl implements UserProfileService {
         return password.toString();
     }
 
-    private long countDuplicates(String baseUsername) {
-        return getExistingUsernames()
-                .filter(StringUtils::isNotBlank)
-                .map(username -> username.replaceAll("\\d+$", ""))
-                .filter(username -> username.equals(baseUsername))
-                .count();
-    }
-
     private Stream<String> getExistingUsernames() {
         return Stream.concat(
                 traineeDao.findAll().stream().map(Trainee::getUsername),
