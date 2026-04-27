@@ -37,9 +37,3 @@ jobs:
             -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
             -Dsonar.qualitygate.wait=true
-
-      - name: Quality Gate Check
-        if: failure()
-        run: |
-          echo "Pipeline failed - merge will be blocked"
-          exit 1
