@@ -12,7 +12,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <spring.version>7.0.6</spring.version>
-        <sonar.projectKey>gym-crm</sonar.projectKey>
+        <sonar.projectKey>borderForNoone_gym-crm</sonar.projectKey>
         <sonar.organization>borderfornoone</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
