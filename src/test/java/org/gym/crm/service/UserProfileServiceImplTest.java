@@ -96,7 +96,8 @@ class UserProfileServiceImplTest {
 
         String actual = userProfileService.generateUsername(FIRST_NAME, LAST_NAME);
 
-        assertNotEquals(USERNAME, actual); assertNotEquals(USERNAME_WITH_SUFFIX_2, actual);
+        assertNotEquals(USERNAME, actual);
+        assertNotEquals(USERNAME_WITH_SUFFIX_2, actual);
     }
 
     private Trainee buildTraineeWithUsername(String username) {
