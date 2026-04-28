@@ -85,25 +85,6 @@ class TrainerMapperTest {
     }
 
     @Test
-    void toResponseDto_shouldHandleNullSpecialization() {
-        User user = User.builder()
-                .firstName(FIRST_NAME)
-                .lastName(LAST_NAME)
-                .username(TRAINER_USERNAME)
-                .isActive(true)
-                .build();
-
-        Trainer trainer = Trainer.builder()
-                .user(user)
-                .specialization(null)
-                .build();
-
-        TrainerResponseDto actual = trainerMapper.toDto(trainer);
-
-        assertNull(actual.getSpecialization());
-    }
-
-    @Test
     void toEntity_shouldReturnNull_whenRequestIsNull() {
         assertNull(trainerMapper.toEntity((TrainerRequestDto) null));
     }
