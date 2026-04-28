@@ -4,6 +4,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.gym.crm.dao.TraineeDao;
 import org.gym.crm.model.Trainee;
+import org.gym.crm.model.User;
 import org.gym.crm.service.TraineeService;
 import org.gym.crm.service.UserProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,19 +24,24 @@ public class TraineeServiceImpl implements TraineeService {
     private UserProfileService userProfileService;
 
     @Override
-    public Trainee create(Long id, Trainee trainee) {
-        log.info("Creating trainee with first name and last name: {}, {}", trainee.getFirstName(), trainee.getLastName());
+    public Trainee create(Trainee trainee) {
+        log.info("Creating trainee: {}, {}",
+                trainee.getUser().getFirstName(),
+                trainee.getUser().getLastName());
+
         String username = userProfileService.generateUsername(
-                trainee.getFirstName(), trainee.getLastName());
+                trainee.getUser().getFirstName(),
+                trainee.getUser().getLastName());
+
         String password = userProfileService.generatePassword();
 
-        Trainee traineeWithProfile = trainee.toBuilder()
-                .username(username)
-                .password(password)
-                .build();
+        trainee.getUser().setUsername(username);
+        trainee.getUser().setPassword(password);
+
+        Trainee saved = traineeDao.save(trainee);
 
         log.info("Trainee created successfully with username: {}", username);
-        return traineeDao.save(id, traineeWithProfile);
+        return saved;
     }
 
     @Override

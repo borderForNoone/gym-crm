@@ -4,6 +4,7 @@ import org.gym.crm.model.Trainee;
 import org.gym.crm.model.Trainer;
 import org.gym.crm.model.Training;
 import org.gym.crm.model.TrainingType;
+import org.gym.crm.model.User;
 import org.gym.crm.storage.parser.CsvParser;
 import org.gym.crm.storage.reader.CsvDataReader;
 import org.junit.jupiter.api.BeforeEach;
@@ -202,10 +203,12 @@ class StorageInitializerTest {
 
     private Trainee buildTrainee() {
         return Trainee.builder()
-                .firstName(FIRST_NAME)
-                .lastName(LAST_NAME)
-                .username(USERNAME)
-                .isActive(true)
+                .user(User.builder()
+                        .firstName(FIRST_NAME)
+                        .lastName(LAST_NAME)
+                        .username(USERNAME)
+                        .isActive(true)
+                        .build())
                 .dateOfBirth(DATE_OF_BIRTH)
                 .address(ADDRESS)
                 .build();
@@ -213,10 +216,12 @@ class StorageInitializerTest {
 
     private Trainer buildTrainer() {
         return Trainer.builder()
-                .firstName(TRAINER_FIRST_NAME)
-                .lastName(TRAINER_LAST_NAME)
-                .username(TRAINER_USERNAME)
-                .isActive(true)
+                .user(User.builder()
+                        .firstName(TRAINER_FIRST_NAME)
+                        .lastName(TRAINER_LAST_NAME)
+                        .username(TRAINER_USERNAME)
+                        .isActive(true)
+                        .build())
                 .specialization(buildFitnessType())
                 .build();
     }
@@ -241,10 +246,12 @@ class StorageInitializerTest {
 
     private Trainee buildSecondTrainee() {
         return Trainee.builder()
-                .firstName(SECOND_FIRST_NAME)
-                .lastName(SECOND_LAST_NAME)
-                .username(SECOND_USERNAME)
-                .isActive(true)
+                .user(User.builder()
+                        .firstName(SECOND_FIRST_NAME)
+                        .lastName(SECOND_LAST_NAME)
+                        .username(SECOND_USERNAME)
+                        .isActive(true)
+                        .build())
                 .build();
     }
 

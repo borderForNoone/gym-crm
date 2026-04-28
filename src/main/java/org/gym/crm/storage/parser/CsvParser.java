@@ -4,6 +4,7 @@ import org.gym.crm.model.Trainee;
 import org.gym.crm.model.Trainer;
 import org.gym.crm.model.Training;
 import org.gym.crm.model.TrainingType;
+import org.gym.crm.model.User;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -12,11 +13,13 @@ import java.time.LocalDate;
 public class CsvParser {
     public Trainee parseTrainee(String[] fields) {
         return Trainee.builder()
-                .firstName(fields[1])
-                .lastName(fields[2])
-                .username(fields[3])
-                .password(fields[4])
-                .isActive(Boolean.parseBoolean(fields[5]))
+                .user(User.builder()
+                        .firstName(fields[1])
+                        .lastName(fields[2])
+                        .username(fields[3])
+                        .password(fields[4])
+                        .isActive(Boolean.parseBoolean(fields[5]))
+                        .build())
                 .dateOfBirth(fields[6].isBlank() ? null : LocalDate.parse(fields[6]))
                 .address(fields[7])
                 .userId(Long.parseLong(fields[8]))
@@ -28,11 +31,13 @@ public class CsvParser {
         specialization.setTrainingTypeName(fields[6]);
 
         return Trainer.builder()
-                .firstName(fields[1])
-                .lastName(fields[2])
-                .username(fields[3])
-                .password(fields[4])
-                .isActive(Boolean.parseBoolean(fields[5]))
+                .user(User.builder()
+                        .firstName(fields[1])
+                        .lastName(fields[2])
+                        .username(fields[3])
+                        .password(fields[4])
+                        .isActive(Boolean.parseBoolean(fields[5]))
+                        .build())
                 .specialization(specialization)
                 .userId(Long.parseLong(fields[7]))
                 .build();

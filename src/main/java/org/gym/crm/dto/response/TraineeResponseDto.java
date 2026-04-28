@@ -15,6 +15,7 @@ public class TraineeResponseDto {
     private final String firstName;
     private final String lastName;
     private final boolean isActive;
+    private final String trainingName;
     private final LocalDate dateOfBirth;
     private final String address;
 }

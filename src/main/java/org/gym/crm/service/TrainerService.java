@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TrainerService {
-    Trainer create(Long id, Trainer trainer);
+    Trainer create(Trainer trainer);
 
     Optional<Trainer> findById(Long id);
 

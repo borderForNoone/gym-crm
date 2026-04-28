@@ -12,7 +12,8 @@ import java.time.LocalDate;
 public class TraineeRequestDto {
     private final String firstName;
     private final String lastName;
-    private final boolean isActive;
+    private final boolean active;
     private final LocalDate dateOfBirth;
     private final String address;
+    private String trainingTypeName;
 }

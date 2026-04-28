@@ -4,93 +4,81 @@ import org.gym.crm.dto.request.TrainingRequestDto;
 import org.gym.crm.dto.response.TrainingResponseDto;
 import org.gym.crm.model.Training;
 import org.gym.crm.model.TrainingType;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 
-import static org.gym.crm.util.TestConstants.DURATION;
-import static org.gym.crm.util.TestConstants.FITNESS;
+import java.time.LocalDate;
+
 import static org.gym.crm.util.TestConstants.ID;
-import static org.gym.crm.util.TestConstants.SECOND_ID;
-import static org.gym.crm.util.TestConstants.THIRD_ID;
-import static org.gym.crm.util.TestConstants.TRAINING_DATE;
-import static org.gym.crm.util.TestConstants.TRAINING_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-class TrainingMapperTest {
-    private TrainingMapper trainingMapper;
-    private TrainingType fitness;
+public class TrainingMapperTest {
+    private static final String TRAINING_NAME = "Morning Cardio";
+    private static final String TRAINING_TYPE_NAME = "Cardio";
+    private static final LocalDate TRAINING_DATE = LocalDate.of(2026, 4, 4);
+    private static final int TRAINING_DURATION = 60;
+    private static final long VALID_ID = 1L;
 
-    @BeforeEach
-    void setUp() {
-        trainingMapper = new TrainingMapper();
-        fitness = buildFitnessType();
+    private final TrainingMapper mapper = Mappers.getMapper(TrainingMapper.class);
+
+    @Test
+    void toEntity_shouldMapAllFields_whenMapFromTrainingRequestDTO() {
+        TrainingRequestDto dto = buildTrainingRequestDTO();
+
+        Training training = mapper.toEntity(dto);
+
+        assertEquals(VALID_ID, training.getTraineeId());
+        assertEquals(VALID_ID, training.getTrainerId());
+        assertEquals(TRAINING_NAME, training.getTrainingName());
+        assertEquals(TRAINING_DATE, training.getTrainingDate());
+        assertEquals(TRAINING_DURATION, training.getTrainingDuration());
+
+        assertNull(training.getTrainingType());
+        assertNull(training.getId());
     }
 
     @Test
-    void toEntity_shouldMapAllFields() {
-        TrainingRequestDto request = TrainingRequestDto.builder()
-                .traineeId(SECOND_ID)
-                .trainerId(THIRD_ID)
-                .trainingName(TRAINING_NAME)
-                .trainingType(fitness)
-                .trainingDate(TRAINING_DATE)
-                .trainingDuration(DURATION)
-                .build();
+    void toDto_shouldMapAllFields_whenMapFromTrainingEntity() {
+        Training training = buildTraining();
 
-        Training actual = trainingMapper.toEntity(request);
+        TrainingResponseDto trainingResponseDTO = mapper.toDto(training);
 
-        assertEquals(SECOND_ID, actual.getTraineeId());
-        assertEquals(THIRD_ID, actual.getTrainerId());
-        assertEquals(TRAINING_NAME, actual.getTrainingName());
-        assertEquals(fitness, actual.getTrainingType());
-        assertEquals(TRAINING_DATE, actual.getTrainingDate());
-        assertEquals(DURATION, actual.getTrainingDuration());
+        assertEquals(VALID_ID, trainingResponseDTO.getTraineeId());
+        assertEquals(VALID_ID, trainingResponseDTO.getTrainerId());
+        assertEquals(TRAINING_NAME, trainingResponseDTO.getTrainingName());
+        assertEquals(TRAINING_TYPE_NAME, trainingResponseDTO.getTrainingTypeName());
+        assertEquals(TRAINING_DATE, trainingResponseDTO.getTrainingDate());
+        assertEquals(TRAINING_DURATION, trainingResponseDTO.getTrainingDuration());
     }
 
-    @Test
-    void toEntity_shouldNotSetId() {
-        TrainingRequestDto request = TrainingRequestDto.builder()
-                .traineeId(SECOND_ID)
-                .trainerId(THIRD_ID)
+    private TrainingRequestDto buildTrainingRequestDTO() {
+        return TrainingRequestDto.builder()
+                .traineeId(VALID_ID)
+                .trainerId(VALID_ID)
                 .trainingName(TRAINING_NAME)
-                .trainingType(fitness)
+                .trainingTypeId(ID)
                 .trainingDate(TRAINING_DATE)
-                .trainingDuration(DURATION)
+                .trainingDuration(TRAINING_DURATION)
                 .build();
-
-        Training actual = trainingMapper.toEntity(request);
-
-        assertNull(actual.getId());
     }
 
-    @Test
-    void toResponseDto_shouldMapAllFields() {
-        Training training = Training.builder()
-                .id(ID)
-                .traineeId(SECOND_ID)
-                .trainerId(THIRD_ID)
+    private Training buildTraining() {
+        return Training.builder()
+                .id(VALID_ID)
+                .traineeId(VALID_ID)
+                .trainerId(VALID_ID)
                 .trainingName(TRAINING_NAME)
-                .trainingType(fitness)
+                .trainingType(buildTrainingType())
                 .trainingDate(TRAINING_DATE)
-                .trainingDuration(DURATION)
+                .trainingDuration(TRAINING_DURATION)
                 .build();
-
-        TrainingResponseDto actual = trainingMapper.toResponseDto(training);
-
-        assertEquals(ID, actual.getId());
-        assertEquals(SECOND_ID, actual.getTraineeId());
-        assertEquals(THIRD_ID, actual.getTrainerId());
-        assertEquals(TRAINING_NAME, actual.getTrainingName());
-        assertEquals(fitness, actual.getTrainingType());
-        assertEquals(TRAINING_DATE, actual.getTrainingDate());
-        assertEquals(DURATION, actual.getTrainingDuration());
     }
 
-    private TrainingType buildFitnessType() {
-        TrainingType fitness = new TrainingType();
-        fitness.setTrainingTypeName(FITNESS);
+    private TrainingType buildTrainingType() {
+        TrainingType type = new TrainingType();
+        type.setTrainingTypeName(TRAINING_TYPE_NAME);
 
-        return fitness;
+        return type;
     }
 }

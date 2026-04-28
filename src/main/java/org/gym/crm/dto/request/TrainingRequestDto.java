@@ -3,7 +3,6 @@ package org.gym.crm.dto.request;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import org.gym.crm.model.TrainingType;
 
 import java.time.LocalDate;
 
@@ -14,7 +13,7 @@ public class TrainingRequestDto {
     private final Long traineeId;
     private final Long trainerId;
     private final String trainingName;
-    private final TrainingType trainingType;
+    private final Long trainingTypeId;
     private final LocalDate trainingDate;
-    private final int trainingDuration;
+    private final Integer trainingDuration;
 }

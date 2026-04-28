@@ -10,18 +10,22 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @Repository
 public class TrainerDaoImpl implements TrainerDao {
     private final TrainerStorage storage;
+    private final AtomicLong idGenerator = new AtomicLong(1);
 
     public TrainerDaoImpl(Storage storage) {
         this.storage = storage.getTrainerStorage();
     }
 
     @Override
-    public Trainer save(Long id, Trainer trainer) {
+    public Trainer save(Trainer trainer) {
+        Long id = idGenerator.getAndIncrement();
+
         storage.getTrainers().put(id, trainer);
 
         log.debug("Saved trainer with id={}", id);

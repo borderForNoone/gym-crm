@@ -3,6 +3,7 @@ package org.gym.crm.service;
 import org.gym.crm.dao.TrainerDao;
 import org.gym.crm.model.Trainer;
 import org.gym.crm.model.TrainingType;
+import org.gym.crm.model.User;
 import org.gym.crm.service.impl.TrainerServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ import static org.gym.crm.util.TestConstants.ID;
 import static org.gym.crm.util.TestConstants.LAST_NAME;
 import static org.gym.crm.util.TestConstants.NON_EXISTING_ID;
 import static org.gym.crm.util.TestConstants.PASSWORD;
+import static org.gym.crm.util.TestConstants.TRAINER_USERNAME;
 import static org.gym.crm.util.TestConstants.USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -44,22 +46,28 @@ class TrainerServiceImplTest {
 
     @Test
     void create_shouldGenerateUsernameAndPasswordAndSave() {
-        when(userProfileService.generateUsername(FIRST_NAME, LAST_NAME)).thenReturn(USERNAME);
-        when(userProfileService.generatePassword()).thenReturn(PASSWORD);
+        when(userProfileService.generateUsername(FIRST_NAME, LAST_NAME))
+                .thenReturn(USERNAME);
+        when(userProfileService.generatePassword())
+                .thenReturn(PASSWORD);
 
         Trainer expected = trainer.toBuilder()
-                .username(USERNAME)
-                .password(PASSWORD)
+                .user(trainer.getUser().toBuilder()
+                        .username(USERNAME)
+                        .password(PASSWORD)
+                        .build())
                 .build();
-        when(trainerDao.save(ID, expected)).thenReturn(expected);
 
-        Trainer actual = trainerService.create(ID, trainer);
+        when(trainerDao.save(expected)).thenReturn(expected);
 
-        assertEquals(USERNAME, actual.getUsername());
-        assertEquals(PASSWORD, actual.getPassword());
+        Trainer actual = trainerService.create(trainer);
+
+        assertEquals(USERNAME, actual.getUser().getUsername());
+        assertEquals(PASSWORD, actual.getUser().getPassword());
+
         verify(userProfileService).generateUsername(FIRST_NAME, LAST_NAME);
         verify(userProfileService).generatePassword();
-        verify(trainerDao).save(ID, expected);
+        verify(trainerDao).save(expected);
     }
 
     @Test
@@ -114,9 +122,12 @@ class TrainerServiceImplTest {
 
     private Trainer buildTrainer() {
         return Trainer.builder()
-                .firstName(FIRST_NAME)
-                .lastName(LAST_NAME)
-                .isActive(true)
+                .user(User.builder()
+                        .firstName(FIRST_NAME)
+                        .lastName(LAST_NAME)
+                        .username(TRAINER_USERNAME)
+                        .isActive(true)
+                        .build())
                 .specialization(buildFitnessType())
                 .build();
     }

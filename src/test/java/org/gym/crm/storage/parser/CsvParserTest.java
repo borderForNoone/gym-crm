@@ -42,11 +42,11 @@ class CsvParserTest {
 
         Trainee actual = parser.parseTrainee(fields);
 
-        assertEquals(FIRST_NAME, actual.getFirstName());
-        assertEquals(LAST_NAME, actual.getLastName());
-        assertEquals(USERNAME, actual.getUsername());
-        assertEquals(PASSWORD, actual.getPassword());
-        assertTrue(actual.isActive());
+        assertEquals(FIRST_NAME, actual.getUser().getFirstName());
+        assertEquals(LAST_NAME, actual.getUser().getLastName());
+        assertEquals(USERNAME, actual.getUser().getUsername());
+        assertEquals(PASSWORD, actual.getUser().getPassword());
+        assertTrue(actual.getUser().getIsActive());
         assertEquals(LocalDate.of(1990, 1, 15), actual.getDateOfBirth());
         assertEquals(ADDRESS, actual.getAddress());
         assertEquals(Long.parseLong(ID.toString()), actual.getUserId());
@@ -67,7 +67,7 @@ class CsvParserTest {
 
         Trainee actual = parser.parseTrainee(fields);
 
-        assertFalse(actual.isActive());
+        assertFalse(actual.getUser().getIsActive());
     }
 
     @Test
@@ -76,11 +76,11 @@ class CsvParserTest {
 
         Trainer actual = parser.parseTrainer(fields);
 
-        assertEquals(TRAINER_FIRST_NAME, actual.getFirstName());
-        assertEquals(TRAINER_LAST_NAME, actual.getLastName());
-        assertEquals(TRAINER_USERNAME, actual.getUsername());
-        assertEquals(PASSWORD, actual.getPassword());
-        assertTrue(actual.isActive());
+        assertEquals(TRAINER_FIRST_NAME, actual.getUser().getFirstName());
+        assertEquals(TRAINER_LAST_NAME, actual.getUser().getLastName());
+        assertEquals(TRAINER_USERNAME, actual.getUser().getUsername());
+        assertEquals(PASSWORD, actual.getUser().getPassword());
+        assertTrue(actual.getUser().getIsActive());
         assertEquals(FITNESS, actual.getSpecialization().getTrainingTypeName());
         assertEquals(Long.parseLong(SECOND_ID.toString()), actual.getUserId());
     }
@@ -91,7 +91,7 @@ class CsvParserTest {
 
         Trainer actual = parser.parseTrainer(fields);
 
-        assertFalse(actual.isActive());
+        assertFalse(actual.getUser().getIsActive());
     }
 
     @Test

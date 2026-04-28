@@ -3,7 +3,6 @@ package org.gym.crm.dto.request;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import org.gym.crm.model.TrainingType;
 
 @Getter
 @Builder
@@ -12,5 +11,5 @@ public class TrainerRequestDto {
     private final String firstName;
     private final String lastName;
     private final boolean isActive;
-    private final TrainingType specialization;
+    private String specialization;
 }

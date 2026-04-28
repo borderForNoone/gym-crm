@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @Repository
@@ -17,16 +18,19 @@ public class TraineeDaoImpl implements TraineeDao {
     private static final String TRAINEE_NOT_FOUND_MESSAGE = "Trainee not found with id: ";
 
     private final TraineeStorage storage;
+    private final AtomicLong idGenerator = new AtomicLong(1);
 
     public TraineeDaoImpl(Storage storage) {
         this.storage = storage.getTraineeStorage();
     }
 
     @Override
-    public Trainee save(Long id, Trainee trainee) {
+    public Trainee save(Trainee trainee) {
+        Long id = idGenerator.getAndIncrement();
+
         storage.getTrainees().put(id, trainee);
 
-        log.debug("Saved trainee with id={}", id);
+        log.debug("Saved trainee with storage id={}", id);
         return trainee;
     }
 

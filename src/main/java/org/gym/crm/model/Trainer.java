@@ -1,15 +1,46 @@
 package org.gym.crm.model;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Getter
 @SuperBuilder(toBuilder = true)
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
-public class Trainer extends User {
-    private final TrainingType specialization;
-    private final Long userId;
+@ToString(exclude = "trainees")
+@EqualsAndHashCode()
+@Entity
+@Table(name = "trainers")
+public class Trainer {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
+    private Long userId;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "specialization_id", nullable = false)
+    private TrainingType specialization;
+
+    @OneToOne(cascade = CascadeType.ALL, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ManyToMany(mappedBy = "trainers")
+    @Builder.Default
+    private Set<Trainee> trainees = new HashSet<>();
 }

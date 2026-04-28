@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TraineeService {
-    Trainee create(Long id, Trainee trainee);
+    Trainee create(Trainee trainee);
 
     Optional<Trainee> findById(Long id);
 
