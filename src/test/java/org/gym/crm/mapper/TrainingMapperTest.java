@@ -13,7 +13,7 @@ import static org.gym.crm.util.TestConstants.ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class TrainingMapperTest {
+class TrainingMapperTest {
     private static final String TRAINING_NAME = "Morning Cardio";
     private static final String TRAINING_TYPE_NAME = "Cardio";
     private static final LocalDate TRAINING_DATE = LocalDate.of(2026, 4, 4);
