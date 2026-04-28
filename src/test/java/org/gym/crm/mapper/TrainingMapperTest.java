@@ -52,6 +52,42 @@ class TrainingMapperTest {
         assertEquals(TRAINING_DURATION, trainingResponseDTO.getTrainingDuration());
     }
 
+    @Test
+    void toDto_shouldHandleNullTrainingType() {
+        Training training = Training.builder()
+                .id(VALID_ID)
+                .traineeId(VALID_ID)
+                .trainerId(VALID_ID)
+                .trainingName(TRAINING_NAME)
+                .trainingType(null)
+                .trainingDate(TRAINING_DATE)
+                .trainingDuration(TRAINING_DURATION)
+                .build();
+
+        TrainingResponseDto dto = mapper.toDto(training);
+
+        assertNull(dto.getTrainingTypeName());
+    }
+
+    @Test
+    void toEntity_shouldReturnNull_whenDtoIsNull() {
+        assertNull(mapper.toEntity((TrainingRequestDto) null));
+    }
+
+    @Test
+    void toDto_shouldReturnNull_whenEntityIsNull() {
+        assertNull(mapper.toDto(null));
+    }
+
+    @Test
+    void toEntity_shouldIgnoreTrainingTypeField() {
+        TrainingRequestDto dto = buildTrainingRequestDTO();
+
+        Training training = mapper.toEntity(dto);
+
+        assertNull(training.getTrainingType());
+    }
+
     private TrainingRequestDto buildTrainingRequestDTO() {
         return TrainingRequestDto.builder()
                 .traineeId(VALID_ID)

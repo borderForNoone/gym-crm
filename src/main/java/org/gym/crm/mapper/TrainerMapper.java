@@ -12,6 +12,10 @@ import org.mapstruct.Mapping;
 public interface TrainerMapper {
     Trainer toEntity(TrainerRequestDto dto);
 
+    @Mapping(target = "user.firstName", source = "firstName")
+    @Mapping(target = "user.lastName", source = "lastName")
+    @Mapping(target = "user.isActive", source = "isActive")
+    @Mapping(target = "specialization", source = "specialization")
     Trainer toEntity(TrainerUpdateDTO dto);
 
     @Mapping(target = "id", source = "userId")
