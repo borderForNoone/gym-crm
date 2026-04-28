@@ -6,6 +6,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import org.gym.crm.dao.TraineeDao;
 import org.gym.crm.model.Trainee;
+import org.gym.crm.model.User;
 import org.gym.crm.service.impl.TraineeServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,21 +57,26 @@ class TraineeServiceImplTest {
     @Test
     void create_shouldGenerateUsernameAndPasswordAndSave() {
         Trainee expected = trainee.toBuilder()
-                .username(USERNAME)
-                .password(PASSWORD)
+                .user(trainee.getUser().toBuilder()
+                        .username(USERNAME)
+                        .password(PASSWORD)
+                        .build())
                 .build();
 
-        when(userProfileService.generateUsername(FIRST_NAME, LAST_NAME)).thenReturn(USERNAME);
-        when(userProfileService.generatePassword()).thenReturn(PASSWORD);
-        when(traineeDao.save(ID, expected)).thenReturn(expected);
+        when(userProfileService.generateUsername(FIRST_NAME, LAST_NAME))
+                .thenReturn(USERNAME);
+        when(userProfileService.generatePassword())
+                .thenReturn(PASSWORD);
+        when(traineeDao.save(expected)).thenReturn(expected);
 
-        Trainee actual = traineeService.create(ID, trainee);
+        Trainee actual = traineeService.create(trainee);
 
-        assertEquals(USERNAME, actual.getUsername());
-        assertEquals(PASSWORD, actual.getPassword());
+        assertEquals(USERNAME, actual.getUser().getUsername());
+        assertEquals(PASSWORD, actual.getUser().getPassword());
+
         verify(userProfileService).generateUsername(FIRST_NAME, LAST_NAME);
         verify(userProfileService).generatePassword();
-        verify(traineeDao).save(ID, expected);
+        verify(traineeDao).save(expected);
     }
 
     @Test
@@ -126,16 +132,12 @@ class TraineeServiceImplTest {
 
     @Test
     void create_shouldLogInfo_whenCreatingTrainee() {
-        Trainee expected = trainee.toBuilder()
-                .username(USERNAME)
-                .password(PASSWORD)
-                .build();
+        when(userProfileService.generateUsername(FIRST_NAME, LAST_NAME))
+                .thenReturn(USERNAME);
+        when(userProfileService.generatePassword())
+                .thenReturn(PASSWORD);
 
-        when(userProfileService.generateUsername(FIRST_NAME, LAST_NAME)).thenReturn(USERNAME);
-        when(userProfileService.generatePassword()).thenReturn(PASSWORD);
-        when(traineeDao.save(ID, expected)).thenReturn(expected);
-
-        traineeService.create(ID, trainee);
+        traineeService.create(trainee);
 
         assertThat(listAppender.list)
                 .filteredOn(log -> log.getLevel() == Level.INFO)
@@ -178,9 +180,12 @@ class TraineeServiceImplTest {
 
     private Trainee buildTrainee() {
         return Trainee.builder()
-                .firstName(FIRST_NAME)
-                .lastName(LAST_NAME)
-                .isActive(true)
+                .user(User.builder()
+                        .firstName(FIRST_NAME)
+                        .lastName(LAST_NAME)
+                        .username(USERNAME)
+                        .isActive(true)
+                        .build())
                 .build();
     }
 }

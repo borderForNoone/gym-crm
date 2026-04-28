@@ -2,28 +2,35 @@ package org.gym.crm.mapper;
 
 import org.gym.crm.dto.request.TrainerRequestDto;
 import org.gym.crm.dto.response.TrainerResponseDto;
+import org.gym.crm.dto.update.TrainerUpdateDTO;
 import org.gym.crm.model.Trainer;
-import org.springframework.stereotype.Component;
+import org.gym.crm.model.TrainingType;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class TrainerMapper {
-    public Trainer toEntity(TrainerRequestDto request) {
-        return Trainer.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .isActive(request.isActive())
-                .specialization(request.getSpecialization())
-                .build();
+@Mapper(componentModel = "spring")
+public interface TrainerMapper {
+    Trainer toEntity(TrainerRequestDto dto);
+
+    Trainer toEntity(TrainerUpdateDTO dto);
+
+    @Mapping(target = "id", source = "userId")
+    @Mapping(target = "username", source = "user.username")
+    @Mapping(target = "firstName", source = "user.firstName")
+    @Mapping(target = "lastName", source = "user.lastName")
+    @Mapping(target = "isActive", source = "user.isActive")
+    @Mapping(target = "specialization", source = "specialization")
+    TrainerResponseDto toDto(Trainer trainer);
+
+    default TrainingType map(String type) {
+        if (type == null) return null;
+
+        TrainingType trainingType = new TrainingType();
+        trainingType.setTrainingTypeName(type);
+        return trainingType;
     }
 
-    public TrainerResponseDto toResponseDto(Trainer trainer) {
-        return TrainerResponseDto.builder()
-                .id(trainer.getUserId())
-                .username(trainer.getUsername())
-                .firstName(trainer.getFirstName())
-                .lastName(trainer.getLastName())
-                .isActive(trainer.isActive())
-                .specialization(trainer.getSpecialization())
-                .build();
+    default String map(TrainingType type) {
+        return type == null ? null : type.getTrainingTypeName();
     }
 }

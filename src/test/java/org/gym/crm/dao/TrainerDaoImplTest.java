@@ -3,6 +3,7 @@ package org.gym.crm.dao;
 import org.gym.crm.dao.impl.TrainerDaoImpl;
 import org.gym.crm.model.Trainer;
 import org.gym.crm.model.TrainingType;
+import org.gym.crm.model.User;
 import org.gym.crm.storage.Storage;
 import org.gym.crm.storage.TrainerStorage;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,7 +53,7 @@ class TrainerDaoImplTest {
 
     @Test
     void save_shouldPutTrainerInStorageAndReturn() {
-        Trainer actual = dao.save(ID, trainer);
+        Trainer actual = dao.save(trainer);
 
         assertEquals(trainer, actual);
         assertEquals(trainer, trainers.get(ID));
@@ -95,7 +96,12 @@ class TrainerDaoImplTest {
     @Test
     void update_shouldUpdateTrainer_whenExists() {
         trainers.put(ID, trainer);
-        Trainer expected = trainer.toBuilder().firstName("John").build();
+
+        Trainer expected = trainer.toBuilder()
+                .user(trainer.getUser().toBuilder()
+                        .firstName("John")
+                        .build())
+                .build();
 
         Trainer actual = dao.update(ID, expected);
 
@@ -120,10 +126,12 @@ class TrainerDaoImplTest {
 
     private Trainer buildTrainer() {
         return Trainer.builder()
-                .firstName(TRAINER_FIRST_NAME)
-                .lastName(TRAINER_LAST_NAME)
-                .username(TRAINER_USERNAME)
-                .isActive(true)
+                .user(User.builder()
+                        .firstName(TRAINER_FIRST_NAME)
+                        .lastName(TRAINER_LAST_NAME)
+                        .username(TRAINER_USERNAME)
+                        .isActive(true)
+                        .build())
                 .specialization(fitnessType())
                 .build();
     }

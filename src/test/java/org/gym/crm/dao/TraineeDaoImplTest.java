@@ -5,6 +5,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import org.gym.crm.dao.impl.TraineeDaoImpl;
 import org.gym.crm.model.Trainee;
+import org.gym.crm.model.User;
 import org.gym.crm.storage.Storage;
 import org.gym.crm.storage.TraineeStorage;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,7 +64,7 @@ class TraineeDaoImplTest {
 
     @Test
     void save_shouldPutTraineeInStorageAndReturn() {
-        Trainee actual = dao.save(ID, trainee);
+        Trainee actual = dao.save(trainee);
 
         assertEquals(trainee, actual);
         assertEquals(trainee, trainees.get(ID));
@@ -106,7 +107,12 @@ class TraineeDaoImplTest {
     @Test
     void update_shouldUpdateTrainee_whenExists() {
         trainees.put(ID, trainee);
-        Trainee expected = trainee.toBuilder().firstName("Jane").build();
+
+        Trainee expected = trainee.toBuilder()
+                .user(trainee.getUser().toBuilder()
+                        .firstName("Jane")
+                        .build())
+                .build();
 
         Trainee actual = dao.update(ID, expected);
 
@@ -164,10 +170,12 @@ class TraineeDaoImplTest {
 
     private Trainee buildTrainee() {
         return Trainee.builder()
-                .firstName(FIRST_NAME)
-                .lastName(LAST_NAME)
-                .username(USERNAME)
-                .isActive(true)
+                .user(User.builder()
+                        .firstName(FIRST_NAME)
+                        .lastName(LAST_NAME)
+                        .username(USERNAME)
+                        .isActive(true)
+                        .build())
                 .build();
     }
 }

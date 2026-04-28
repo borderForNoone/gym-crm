@@ -45,27 +45,27 @@ public class GymFacade {
         this.trainingMapper = trainingMapper;
     }
 
-    public TraineeResponseDto createTrainee(Long id, TraineeRequestDto request) {
+    public TraineeResponseDto createTrainee(TraineeRequestDto request) {
         Trainee trainee = traineeMapper.toEntity(request);
 
-        return traineeMapper.toResponseDto(traineeService.create(id, trainee));
+        return traineeMapper.toDto(traineeService.create(trainee));
     }
 
     public Optional<TraineeResponseDto> getTrainee(Long id) {
         return traineeService.findById(id)
-                .map(traineeMapper::toResponseDto);
+                .map(traineeMapper::toDto);
     }
 
     public List<TraineeResponseDto> getAllTrainees() {
         return traineeService.findAll().stream()
-                .map(traineeMapper::toResponseDto)
+                .map(traineeMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     public TraineeResponseDto updateTrainee(Long id, TraineeRequestDto request) {
         Trainee trainee = traineeMapper.toEntity(request);
 
-        return traineeMapper.toResponseDto(traineeService.update(id, trainee));
+        return traineeMapper.toDto(traineeService.update(id, trainee));
     }
 
     public void deleteTrainee(Long id) {
@@ -75,40 +75,40 @@ public class GymFacade {
     public TrainerResponseDto createTrainer(Long id, TrainerRequestDto request) {
         Trainer trainer = trainerMapper.toEntity(request);
 
-        return trainerMapper.toResponseDto(trainerService.create(id, trainer));
+        return trainerMapper.toDto(trainerService.create(trainer));
     }
 
     public Optional<TrainerResponseDto> getTrainer(Long id) {
         return trainerService.findById(id)
-                .map(trainerMapper::toResponseDto);
+                .map(trainerMapper::toDto);
     }
 
     public List<TrainerResponseDto> getAllTrainers() {
         return trainerService.findAll().stream()
-                .map(trainerMapper::toResponseDto)
+                .map(trainerMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     public TrainerResponseDto updateTrainer(Long id, TrainerRequestDto request) {
         Trainer trainer = trainerMapper.toEntity(request);
 
-        return trainerMapper.toResponseDto(trainerService.update(id, trainer));
+        return trainerMapper.toDto(trainerService.update(id, trainer));
     }
 
     public TrainingResponseDto createTraining(TrainingRequestDto request) {
         Training training = trainingMapper.toEntity(request);
 
-        return trainingMapper.toResponseDto(trainingService.create(training));
+        return trainingMapper.toDto(trainingService.create(training));
     }
 
     public Optional<TrainingResponseDto> getTraining(Long id) {
         return trainingService.findById(id)
-                .map(trainingMapper::toResponseDto);
+                .map(trainingMapper::toDto);
     }
 
     public List<TrainingResponseDto> getAllTrainings() {
         return trainingService.findAll().stream()
-                .map(trainingMapper::toResponseDto)
+                .map(trainingMapper::toDto)
                 .collect(Collectors.toList());
     }
 }

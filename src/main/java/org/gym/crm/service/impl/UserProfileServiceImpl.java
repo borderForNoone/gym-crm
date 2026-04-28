@@ -62,8 +62,10 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     private Stream<String> getExistingUsernames() {
         return Stream.concat(
-                traineeDao.findAll().stream().map(Trainee::getUsername),
-                trainerDao.findAll().stream().map(Trainer::getUsername)
+                traineeDao.findAll().stream()
+                        .map(trainee -> trainee.getUser().getUsername()),
+                trainerDao.findAll().stream()
+                        .map(trainer -> trainer.getUser().getUsername())
         );
     }
 

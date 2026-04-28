@@ -14,7 +14,7 @@ public class TrainingRequestDto {
     private final Long traineeId;
     private final Long trainerId;
     private final String trainingName;
-    private final TrainingType trainingType;
+    private final Long trainingTypeId;
     private final LocalDate trainingDate;
-    private final int trainingDuration;
+    private final Integer trainingDuration;
 }

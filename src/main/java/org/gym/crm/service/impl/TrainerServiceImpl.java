@@ -4,6 +4,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.gym.crm.dao.TrainerDao;
 import org.gym.crm.model.Trainer;
+import org.gym.crm.model.User;
 import org.gym.crm.service.TrainerService;
 import org.gym.crm.service.UserProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,21 +24,24 @@ public class TrainerServiceImpl implements TrainerService {
     private UserProfileService userProfileService;
 
     @Override
-    public Trainer create(Long id, Trainer trainer) {
-        log.info("Creating trainer: {} {}", trainer.getFirstName(), trainer.getLastName());
-
-        String username = userProfileService.generateUsername(
-                trainer.getFirstName(), trainer.getLastName());
-
+    public Trainer create(Trainer trainer) {
+        log.info("Creating trainer: {} {}", trainer.getUser().getFirstName(), trainer.getUser().getLastName());
+        String username = userProfileService.generateUsername(trainer.getUser().getFirstName(), trainer.getUser().getLastName());
         String password = userProfileService.generatePassword();
 
-        Trainer trainerWithProfile = trainer.toBuilder()
+        User user = trainer.getUser().toBuilder()
                 .username(username)
                 .password(password)
                 .build();
 
-        log.info("Trainer created successfully with id={} and username={}", id, username);
-        return trainerDao.save(id, trainerWithProfile);
+        Trainer trainerWithProfile = trainer.toBuilder()
+                .user(user)
+                .build();
+
+        Trainer saved = trainerDao.save(trainerWithProfile);
+
+        log.info("Trainer created successfully with username={}", username);
+        return saved;
     }
 
     @Override

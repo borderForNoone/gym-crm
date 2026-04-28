@@ -5,6 +5,7 @@ import org.gym.crm.dao.TrainerDao;
 import org.gym.crm.model.Trainee;
 import org.gym.crm.model.Trainer;
 import org.gym.crm.model.TrainingType;
+import org.gym.crm.model.User;
 import org.gym.crm.service.impl.UserProfileServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -102,17 +103,21 @@ class UserProfileServiceImplTest {
 
     private Trainee buildTraineeWithUsername(String username) {
         return Trainee.builder()
-                .firstName(FIRST_NAME)
-                .lastName(LAST_NAME)
-                .username(username)
+                .user(User.builder()
+                        .firstName(FIRST_NAME)
+                        .lastName(LAST_NAME)
+                        .username(username)
+                        .build())
                 .build();
     }
 
     private Trainer buildTrainerWithUsername(String username) {
         return Trainer.builder()
-                .firstName(FIRST_NAME)
-                .lastName(LAST_NAME)
-                .username(username)
+                .user(User.builder()
+                        .firstName(FIRST_NAME)
+                        .lastName(LAST_NAME)
+                        .username(username)
+                        .build())
                 .specialization(new TrainingType())
                 .build();
     }

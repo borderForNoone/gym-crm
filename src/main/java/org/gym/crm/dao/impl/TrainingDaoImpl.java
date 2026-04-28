@@ -10,11 +10,13 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @Repository
 public class TrainingDaoImpl implements TrainingDao {
     private final TrainingStorage storage;
+    private final AtomicLong idGenerator = new AtomicLong(1);
 
     public TrainingDaoImpl(Storage storage) {
         this.storage = storage.getTrainingStorage();

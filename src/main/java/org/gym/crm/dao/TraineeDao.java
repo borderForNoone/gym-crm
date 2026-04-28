@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TraineeDao {
-    Trainee save(Long id, Trainee trainee);
+    Trainee save(Trainee trainee);
 
     Optional<Trainee> findById(Long id);
 

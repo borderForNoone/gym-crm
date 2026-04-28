@@ -13,6 +13,7 @@ import org.gym.crm.model.Trainee;
 import org.gym.crm.model.Trainer;
 import org.gym.crm.model.Training;
 import org.gym.crm.model.TrainingType;
+import org.gym.crm.model.User;
 import org.gym.crm.service.TraineeService;
 import org.gym.crm.service.TrainerService;
 import org.gym.crm.service.TrainingService;
@@ -86,21 +87,21 @@ class GymFacadeTest {
     @Test
     void createTrainee_shouldMapAndDelegateToService() {
         when(traineeMapper.toEntity(traineeRequest)).thenReturn(trainee);
-        when(traineeService.create(ID, trainee)).thenReturn(trainee);
-        when(traineeMapper.toResponseDto(trainee)).thenReturn(traineeResponse);
+        when(traineeService.create(trainee)).thenReturn(trainee);
+        when(traineeMapper.toDto(trainee)).thenReturn(traineeResponse);
 
-        TraineeResponseDto actual = facade.createTrainee(ID, traineeRequest);
+        TraineeResponseDto actual = facade.createTrainee(traineeRequest);
 
         assertEquals(traineeResponse, actual);
         verify(traineeMapper).toEntity(traineeRequest);
-        verify(traineeService).create(ID, trainee);
-        verify(traineeMapper).toResponseDto(trainee);
+        verify(traineeService).create(trainee);
+        verify(traineeMapper).toDto(trainee);
     }
 
     @Test
     void getTrainee_shouldReturnDto_whenExists() {
         when(traineeService.findById(ID)).thenReturn(Optional.of(trainee));
-        when(traineeMapper.toResponseDto(trainee)).thenReturn(traineeResponse);
+        when(traineeMapper.toDto(trainee)).thenReturn(traineeResponse);
 
         Optional<TraineeResponseDto> actual = facade.getTrainee(ID);
 
@@ -122,7 +123,7 @@ class GymFacadeTest {
     @Test
     void getAllTrainees_shouldReturnMappedList() {
         when(traineeService.findAll()).thenReturn(List.of(trainee));
-        when(traineeMapper.toResponseDto(trainee)).thenReturn(traineeResponse);
+        when(traineeMapper.toDto(trainee)).thenReturn(traineeResponse);
 
         List<TraineeResponseDto> actual = facade.getAllTrainees();
 
@@ -135,14 +136,14 @@ class GymFacadeTest {
     void updateTrainee_shouldMapAndDelegateToService() {
         when(traineeMapper.toEntity(traineeRequest)).thenReturn(trainee);
         when(traineeService.update(ID, trainee)).thenReturn(trainee);
-        when(traineeMapper.toResponseDto(trainee)).thenReturn(traineeResponse);
+        when(traineeMapper.toDto(trainee)).thenReturn(traineeResponse);
 
         TraineeResponseDto actual = facade.updateTrainee(ID, traineeRequest);
 
         assertEquals(traineeResponse, actual);
         verify(traineeMapper).toEntity(traineeRequest);
         verify(traineeService).update(ID, trainee);
-        verify(traineeMapper).toResponseDto(trainee);
+        verify(traineeMapper).toDto(trainee);
     }
 
     @Test
@@ -155,21 +156,21 @@ class GymFacadeTest {
     @Test
     void createTrainer_shouldMapAndDelegateToService() {
         when(trainerMapper.toEntity(trainerRequest)).thenReturn(trainer);
-        when(trainerService.create(ID, trainer)).thenReturn(trainer);
-        when(trainerMapper.toResponseDto(trainer)).thenReturn(trainerResponse);
+        when(trainerService.create(trainer)).thenReturn(trainer);
+        when(trainerMapper.toDto(trainer)).thenReturn(trainerResponse);
 
         TrainerResponseDto actual = facade.createTrainer(ID, trainerRequest);
 
         assertEquals(trainerResponse, actual);
         verify(trainerMapper).toEntity(trainerRequest);
-        verify(trainerService).create(ID, trainer);
-        verify(trainerMapper).toResponseDto(trainer);
+        verify(trainerService).create(trainer);
+        verify(trainerMapper).toDto(trainer);
     }
 
     @Test
     void getTrainer_shouldReturnDto_whenExists() {
         when(trainerService.findById(ID)).thenReturn(Optional.of(trainer));
-        when(trainerMapper.toResponseDto(trainer)).thenReturn(trainerResponse);
+        when(trainerMapper.toDto(trainer)).thenReturn(trainerResponse);
 
         Optional<TrainerResponseDto> actual = facade.getTrainer(ID);
 
@@ -191,7 +192,7 @@ class GymFacadeTest {
     @Test
     void getAllTrainers_shouldReturnMappedList() {
         when(trainerService.findAll()).thenReturn(List.of(trainer));
-        when(trainerMapper.toResponseDto(trainer)).thenReturn(trainerResponse);
+        when(trainerMapper.toDto(trainer)).thenReturn(trainerResponse);
 
         List<TrainerResponseDto> actual = facade.getAllTrainers();
 
@@ -204,34 +205,34 @@ class GymFacadeTest {
     void updateTrainer_shouldMapAndDelegateToService() {
         when(trainerMapper.toEntity(trainerRequest)).thenReturn(trainer);
         when(trainerService.update(ID, trainer)).thenReturn(trainer);
-        when(trainerMapper.toResponseDto(trainer)).thenReturn(trainerResponse);
+        when(trainerMapper.toDto(trainer)).thenReturn(trainerResponse);
 
         TrainerResponseDto actual = facade.updateTrainer(ID, trainerRequest);
 
         assertEquals(trainerResponse, actual);
         verify(trainerMapper).toEntity(trainerRequest);
         verify(trainerService).update(ID, trainer);
-        verify(trainerMapper).toResponseDto(trainer);
+        verify(trainerMapper).toDto(trainer);
     }
 
     @Test
     void createTraining_shouldMapAndDelegateToService() {
         when(trainingMapper.toEntity(trainingRequest)).thenReturn(training);
         when(trainingService.create(training)).thenReturn(training);
-        when(trainingMapper.toResponseDto(training)).thenReturn(trainingResponse);
+        when(trainingMapper.toDto(training)).thenReturn(trainingResponse);
 
         TrainingResponseDto actual = facade.createTraining(trainingRequest);
 
         assertEquals(trainingResponse, actual);
         verify(trainingMapper).toEntity(trainingRequest);
         verify(trainingService).create(training);
-        verify(trainingMapper).toResponseDto(training);
+        verify(trainingMapper).toDto(training);
     }
 
     @Test
     void getTraining_shouldReturnDto_whenExists() {
         when(trainingService.findById(ID)).thenReturn(Optional.of(training));
-        when(trainingMapper.toResponseDto(training)).thenReturn(trainingResponse);
+        when(trainingMapper.toDto(training)).thenReturn(trainingResponse);
 
         Optional<TrainingResponseDto> actual = facade.getTraining(ID);
 
@@ -253,7 +254,7 @@ class GymFacadeTest {
     @Test
     void getAllTrainings_shouldReturnMappedList() {
         when(trainingService.findAll()).thenReturn(List.of(training));
-        when(trainingMapper.toResponseDto(training)).thenReturn(trainingResponse);
+        when(trainingMapper.toDto(training)).thenReturn(trainingResponse);
 
         List<TrainingResponseDto> actual = facade.getAllTrainings();
 
@@ -272,19 +273,23 @@ class GymFacadeTest {
 
     private Trainee buildTrainee() {
         return Trainee.builder()
-                .firstName(FIRST_NAME)
-                .lastName(LAST_NAME)
-                .username(USERNAME)
-                .isActive(true)
+                .user(User.builder()
+                        .firstName(FIRST_NAME)
+                        .lastName(LAST_NAME)
+                        .username(USERNAME)
+                        .isActive(true)
+                        .build())
                 .build();
     }
 
     private Trainer buildTrainer() {
         return Trainer.builder()
-                .firstName(TRAINER_FIRST_NAME)
-                .lastName(TRAINER_LAST_NAME)
-                .username(TRAINER_USERNAME)
-                .isActive(true)
+                .user(User.builder()
+                        .firstName(TRAINER_FIRST_NAME)
+                        .lastName(TRAINER_LAST_NAME)
+                        .username(TRAINER_USERNAME)
+                        .isActive(true)
+                        .build())
                 .specialization(fitnessType())
                 .build();
     }
@@ -305,7 +310,7 @@ class GymFacadeTest {
         return TraineeRequestDto.builder()
                 .firstName(FIRST_NAME)
                 .lastName(LAST_NAME)
-                .isActive(true)
+                .active(true)
                 .build();
     }
 
@@ -314,7 +319,7 @@ class GymFacadeTest {
                 .firstName(TRAINER_FIRST_NAME)
                 .lastName(TRAINER_LAST_NAME)
                 .isActive(true)
-                .specialization(fitnessType())
+                .specialization(fitnessType().getTrainingTypeName())
                 .build();
     }
 
@@ -323,7 +328,7 @@ class GymFacadeTest {
                 .traineeId(ID)
                 .trainerId(ID)
                 .trainingName(TRAINING_NAME)
-                .trainingType(fitnessType())
+                .trainingTypeId(ID)
                 .trainingDate(TRAINING_DATE)
                 .trainingDuration(DURATION)
                 .build();
@@ -354,7 +359,7 @@ class GymFacadeTest {
                 .traineeId(ID)
                 .trainerId(ID)
                 .trainingName(TRAINING_NAME)
-                .trainingType(fitnessType())
+                .trainingTypeName(fitnessType().getTrainingTypeName())
                 .trainingDate(TRAINING_DATE)
                 .trainingDuration(DURATION)
                 .build();
