@@ -32,13 +32,13 @@ public class Trainee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private final Long userId;
+    private Long userId;
 
-    @Column(name = "date_of_birth", nullable = true)
-    private final LocalDate dateOfBirth;
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
 
-    @Column(nullable = true, length = 255)
-    private final String address;
+    @Column(name = "address", length = 255)
+    private String address;
 
     @OneToOne(cascade = CascadeType.ALL, optional = false)
     @JoinColumn(name = "user_id", nullable = false)

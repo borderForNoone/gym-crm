@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ContextConfiguration(classes = HibernateConfig.class)
 @TestPropertySource("classpath:application-test.properties")
 @ActiveProfiles("test")
-public class HibernateConfigTest {
+class HibernateConfigTest {
     @Autowired
     private SessionFactory factory;
 

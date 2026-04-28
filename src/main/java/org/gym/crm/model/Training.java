@@ -26,19 +26,19 @@ public class Training {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
-    private final Long id;
+    private Long id;
 
     private final Long traineeId; // toDo will be removed in future mr
     private final Long trainerId; // toDo will be removed in future mr
 
     @Column(name = "training_name", nullable = false, length = 100)
-    private final String trainingName;
+    private String trainingName;
 
     @Column(name = "training_date", nullable = false)
-    private final LocalDate trainingDate;
+    private LocalDate trainingDate;
 
     @Column(name = "training_duration", nullable = false)
-    private final int trainingDuration;
+    private int trainingDuration;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "trainee_id", nullable = false)
@@ -50,5 +50,5 @@ public class Training {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "training_type_id", nullable = false)
-    private final TrainingType trainingType;
+    private TrainingType trainingType;
 }

@@ -72,7 +72,7 @@ public class GymFacade {
         traineeService.delete(id);
     }
 
-    public TrainerResponseDto createTrainer(Long id, TrainerRequestDto request) {
+    public TrainerResponseDto createTrainer(TrainerRequestDto request) {
         Trainer trainer = trainerMapper.toEntity(request);
 
         return trainerMapper.toDto(trainerService.create(trainer));

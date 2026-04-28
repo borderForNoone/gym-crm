@@ -159,7 +159,7 @@ class GymFacadeTest {
         when(trainerService.create(trainer)).thenReturn(trainer);
         when(trainerMapper.toDto(trainer)).thenReturn(trainerResponse);
 
-        TrainerResponseDto actual = facade.createTrainer(ID, trainerRequest);
+        TrainerResponseDto actual = facade.createTrainer(trainerRequest);
 
         assertEquals(trainerResponse, actual);
         verify(trainerMapper).toEntity(trainerRequest);

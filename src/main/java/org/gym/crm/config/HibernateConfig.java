@@ -14,7 +14,6 @@ import java.util.Properties;
 
 @Configuration
 public class HibernateConfig {
-
     @Value("${hibernate.connection.driver_class}")
     private String driverClass;
 
