@@ -23,19 +23,19 @@ class TrainingMapperTest {
     private final TrainingMapper mapper = Mappers.getMapper(TrainingMapper.class);
 
     @Test
-    void toEntity_shouldMapAllFields_whenMapFromTrainingRequestDTO() {
+    void toEntity_shouldMapAllFields_whenValidDto() {
         TrainingRequestDto dto = buildTrainingRequestDTO();
 
-        Training training = mapper.toEntity(dto);
+        Training actual = mapper.toEntity(dto);
 
-        assertEquals(VALID_ID, training.getTraineeId());
-        assertEquals(VALID_ID, training.getTrainerId());
-        assertEquals(TRAINING_NAME, training.getTrainingName());
-        assertEquals(TRAINING_DATE, training.getTrainingDate());
-        assertEquals(TRAINING_DURATION, training.getTrainingDuration());
+        assertEquals(VALID_ID, actual.getTraineeId());
+        assertEquals(VALID_ID, actual.getTrainerId());
+        assertEquals(TRAINING_NAME, actual.getTrainingName());
+        assertEquals(TRAINING_DATE, actual.getTrainingDate());
+        assertEquals(TRAINING_DURATION, actual.getTrainingDuration());
 
-        assertNull(training.getTrainingType());
-        assertNull(training.getId());
+        assertNull(actual.getTrainingType());
+        assertNull(actual.getId());
     }
 
     @Test
@@ -64,14 +64,14 @@ class TrainingMapperTest {
                 .trainingDuration(TRAINING_DURATION)
                 .build();
 
-        TrainingResponseDto dto = mapper.toDto(training);
+        TrainingResponseDto actual = mapper.toDto(training);
 
-        assertNull(dto.getTrainingTypeName());
+        assertNull(actual.getTrainingTypeName());
     }
 
     @Test
     void toEntity_shouldReturnNull_whenDtoIsNull() {
-        assertNull(mapper.toEntity((TrainingRequestDto) null));
+        assertNull(mapper.toEntity(null));
     }
 
     @Test
@@ -81,11 +81,13 @@ class TrainingMapperTest {
 
     @Test
     void toEntity_shouldIgnoreTrainingTypeField() {
-        TrainingRequestDto dto = buildTrainingRequestDTO();
+        TrainingRequestDto dto = TrainingRequestDto.builder()
+                .trainingTypeId(ID)
+                .build();
 
-        Training training = mapper.toEntity(dto);
+        Training actual = mapper.toEntity(dto);
 
-        assertNull(training.getTrainingType());
+        assertNull(actual.getTrainingType());
     }
 
     private TrainingRequestDto buildTrainingRequestDTO() {

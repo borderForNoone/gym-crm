@@ -48,19 +48,7 @@ class TraineeDaoImplTest {
 
         dao = new TraineeDaoImpl(storage);
 
-        org.slf4j.Logger slf4jLogger = LoggerFactory.getLogger(TraineeDaoImpl.class);
-
-        if (slf4jLogger instanceof Logger) {
-            Logger logger = (Logger) slf4jLogger;
-            listAppender = new ListAppender<>();
-            listAppender.start();
-            logger.addAppender(listAppender);
-        } else {
-            listAppender = new ListAppender<>();
-            listAppender.start();
-
-            System.out.println("Warning: Logger is not Logback, log verification may not work");
-        }
+        initLogger();
     }
 
     @Test
@@ -147,16 +135,17 @@ class TraineeDaoImplTest {
                 () -> dao.update(NON_EXISTING_ID, trainee)
         );
 
-        assertEquals(TRAINEE_NOT_FOUND_MESSAGE + NON_EXISTING_ID, exception.getMessage());
+        assertThat(exception.getMessage())
+                .isEqualTo(TRAINEE_NOT_FOUND_MESSAGE + NON_EXISTING_ID);
 
-        if (listAppender != null) {
-            List<ILoggingEvent> logs = listAppender.list;
-            assertEquals(1, logs.size());
-            assertEquals(Level.ERROR, logs.getFirst().getLevel());
-            assertTrue(logs.getFirst()
-                    .getFormattedMessage()
-                    .contains(String.valueOf(NON_EXISTING_ID)));
-        }
+        assertThat(listAppender.list)
+                .hasSize(1)
+                .first()
+                .satisfies(log -> {
+                    assertThat(log.getLevel()).isEqualTo(Level.ERROR);
+                    assertThat(log.getFormattedMessage())
+                            .contains(String.valueOf(NON_EXISTING_ID));
+                });
     }
 
     @Test
@@ -165,11 +154,9 @@ class TraineeDaoImplTest {
 
         dao.delete(ID);
 
-        if (listAppender != null) {
-            assertThat(listAppender.list)
-                    .extracting(ILoggingEvent::getLevel)
-                    .doesNotContain(Level.ERROR);
-        }
+        assertThat(listAppender.list)
+                .extracting(ILoggingEvent::getLevel)
+                .doesNotContain(Level.ERROR);
     }
 
     private Trainee buildTrainee() {
@@ -181,5 +168,14 @@ class TraineeDaoImplTest {
                         .isActive(true)
                         .build())
                 .build();
+    }
+
+    private void initLogger() {
+        Logger logger = (Logger) LoggerFactory.getLogger(TraineeDaoImpl.class);
+
+        listAppender = new ListAppender<>();
+        listAppender.start();
+
+        logger.addAppender(listAppender);
     }
 }

@@ -157,9 +157,9 @@ class TrainerMapperTest {
 
     @Test
     void map_shouldConvertStringToTrainingType() {
-        TrainingType type = trainerMapper.map(FITNESS);
+        TrainingType actual = trainerMapper.map(FITNESS);
 
-        assertEquals(FITNESS, type.getTrainingTypeName());
+        assertEquals(FITNESS, actual.getTrainingTypeName());
     }
 
     @Test
