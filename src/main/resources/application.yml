@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: gym-crm
+
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/gym_db}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:your_password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  liquibase:
+    changelog:
+      master: classpath:db/migration/master.xml
+
+  storage:
+    data:
+      trainees: src/main/resources/data/trainees.csv
+      trainers: src/main/resources/data/trainers.csv
+      trainings: src/main/resources/data/trainings.csv
