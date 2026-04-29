@@ -5,4 +5,5 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd">
 
     <include file="initial_schema.xml"/>
+    <include file="db/migration/data.xml"/>
 </databaseChangeLog>
