@@ -1,8 +1,11 @@
 package org.gym.crm.storage;
 
+import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class Storage {
     private final Map<Namespace, Object> storages = new HashMap<>();
 

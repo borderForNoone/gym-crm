@@ -1,6 +1,7 @@
 package org.gym.crm.dao;
 
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import org.gym.crm.dao.impl.TraineeDaoImpl;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ch.qos.logback.classic.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
@@ -22,16 +22,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.gym.crm.util.TestConstants.FIRST_NAME;
-import static org.gym.crm.util.TestConstants.ID;
-import static org.gym.crm.util.TestConstants.LAST_NAME;
-import static org.gym.crm.util.TestConstants.NON_EXISTING_ID;
-import static org.gym.crm.util.TestConstants.TRAINEE_NOT_FOUND_MESSAGE;
-import static org.gym.crm.util.TestConstants.USERNAME;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.gym.crm.util.TestConstants.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,10 +48,7 @@ class TraineeDaoImplTest {
 
         dao = new TraineeDaoImpl(storage);
 
-        Logger logger = (Logger) LoggerFactory.getLogger(TraineeDaoImpl.class);
-        listAppender = new ListAppender<>();
-        listAppender.start();
-        logger.addAppender(listAppender);
+        initLogger();
     }
 
     @Test
@@ -146,15 +135,17 @@ class TraineeDaoImplTest {
                 () -> dao.update(NON_EXISTING_ID, trainee)
         );
 
-        assertEquals(TRAINEE_NOT_FOUND_MESSAGE + NON_EXISTING_ID, exception.getMessage());
+        assertThat(exception.getMessage())
+                .isEqualTo(TRAINEE_NOT_FOUND_MESSAGE + NON_EXISTING_ID);
 
-        List<ILoggingEvent> logs = listAppender.list;
-
-        assertEquals(1, logs.size());
-        assertEquals(Level.ERROR, logs.getFirst().getLevel());
-        assertTrue(logs.getFirst()
-                .getFormattedMessage()
-                .contains(String.valueOf(NON_EXISTING_ID)));
+        assertThat(listAppender.list)
+                .hasSize(1)
+                .first()
+                .satisfies(log -> {
+                    assertThat(log.getLevel()).isEqualTo(Level.ERROR);
+                    assertThat(log.getFormattedMessage())
+                            .contains(String.valueOf(NON_EXISTING_ID));
+                });
     }
 
     @Test
@@ -177,5 +168,14 @@ class TraineeDaoImplTest {
                         .isActive(true)
                         .build())
                 .build();
+    }
+
+    private void initLogger() {
+        Logger logger = (Logger) LoggerFactory.getLogger(TraineeDaoImpl.class);
+
+        listAppender = new ListAppender<>();
+        listAppender.start();
+
+        logger.addAppender(listAppender);
     }
 }

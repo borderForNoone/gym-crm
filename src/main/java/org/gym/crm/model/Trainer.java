@@ -29,7 +29,7 @@ import java.util.Set;
 public class Trainer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
+    @Column(name = "id")
     private Long userId;
 
     @ManyToOne(optional = false)

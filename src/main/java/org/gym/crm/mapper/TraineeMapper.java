@@ -16,6 +16,11 @@ public interface TraineeMapper {
     @Mapping(target = "address", source = "address")
     Trainee toEntity(TraineeRequestDto dto);
 
+    @Mapping(target = "user.firstName", source = "firstName")
+    @Mapping(target = "user.lastName", source = "lastName")
+    @Mapping(target = "user.isActive", source = "isActive")
+    @Mapping(target = "dateOfBirth", source = "dateOfBirth")
+    @Mapping(target = "address", source = "address")
     Trainee toEntity(TraineeUpdateDTO traineeUpdateDTO);
 
     @Mapping(target = "id", source = "userId")
