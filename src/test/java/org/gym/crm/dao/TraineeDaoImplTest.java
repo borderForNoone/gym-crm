@@ -7,61 +7,79 @@ import ch.qos.logback.core.read.ListAppender;
 import org.gym.crm.dao.impl.TraineeDaoImpl;
 import org.gym.crm.model.Trainee;
 import org.gym.crm.model.User;
-import org.gym.crm.storage.Storage;
-import org.gym.crm.storage.TraineeStorage;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaCriteriaQuery;
+import org.hibernate.query.criteria.JpaRoot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.gym.crm.util.TestConstants.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.gym.crm.util.TestConstants.FIRST_NAME;
+import static org.gym.crm.util.TestConstants.ID;
+import static org.gym.crm.util.TestConstants.LAST_NAME;
+import static org.gym.crm.util.TestConstants.NON_EXISTING_ID;
+import static org.gym.crm.util.TestConstants.TRAINEE_NOT_FOUND_MESSAGE;
+import static org.gym.crm.util.TestConstants.USERNAME;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TraineeDaoImplTest {
     @Mock
-    private Storage storage;
+    private SessionFactory sessionFactory;
     @Mock
-    private TraineeStorage traineeStorage;
+    private Session session;
+    @Mock
+    private HibernateCriteriaBuilder criteriaBuilder;
+    @Mock
+    private JpaCriteriaQuery<Trainee> criteriaQuery;
+    @Mock
+    private JpaRoot<Trainee> root;
+    @Mock
+    private Query<Trainee> query;
 
-    private TraineeDao dao;
-    private Map<Long, Trainee> trainees;
+    @InjectMocks
+    private TraineeDaoImpl dao;
+
     private Trainee trainee;
     private ListAppender<ILoggingEvent> listAppender;
 
     @BeforeEach
     void setUp() {
-        trainees = new HashMap<>();
         trainee = buildTrainee();
 
-        when(storage.getTraineeStorage()).thenReturn(traineeStorage);
-        when(traineeStorage.getTrainees()).thenReturn(trainees);
-
-        dao = new TraineeDaoImpl(storage);
+        when(sessionFactory.getCurrentSession()).thenReturn(session);
 
         initLogger();
     }
 
     @Test
-    void save_shouldPutTraineeInStorageAndReturn() {
+    void save_shouldPersistTraineeAndReturn() {
         Trainee actual = dao.save(trainee);
 
+        verify(session).persist(trainee);
         assertEquals(trainee, actual);
-        assertEquals(trainee, trainees.get(ID));
     }
 
     @Test
     void findById_shouldReturnTrainee_whenExists() {
-        trainees.put(ID, trainee);
+        when(session.get(Trainee.class, ID)).thenReturn(trainee);
 
         Optional<Trainee> actual = dao.findById(ID);
 
@@ -71,6 +89,8 @@ class TraineeDaoImplTest {
 
     @Test
     void findById_shouldReturnEmpty_whenNotExists() {
+        when(session.get(Trainee.class, NON_EXISTING_ID)).thenReturn(null);
+
         Optional<Trainee> actual = dao.findById(NON_EXISTING_ID);
 
         assertTrue(actual.isEmpty());
@@ -78,7 +98,11 @@ class TraineeDaoImplTest {
 
     @Test
     void findAll_shouldReturnAllTrainees() {
-        trainees.put(ID, trainee);
+        when(session.getCriteriaBuilder()).thenReturn(criteriaBuilder);
+        when(criteriaBuilder.createQuery(Trainee.class)).thenReturn(criteriaQuery);
+        when(criteriaQuery.from(Trainee.class)).thenReturn(root);
+        when(session.createQuery(criteriaQuery)).thenReturn(query);
+        when(query.getResultList()).thenReturn(List.of(trainee));
 
         List<Trainee> actual = dao.findAll();
 
@@ -88,55 +112,60 @@ class TraineeDaoImplTest {
 
     @Test
     void findAll_shouldReturnEmptyList_whenNoTrainees() {
+        when(session.getCriteriaBuilder()).thenReturn(criteriaBuilder);
+        when(criteriaBuilder.createQuery(Trainee.class)).thenReturn(criteriaQuery);
+        when(criteriaQuery.from(Trainee.class)).thenReturn(root);
+        when(session.createQuery(criteriaQuery)).thenReturn(query);
+        when(query.getResultList()).thenReturn(List.of());
+
         List<Trainee> actual = dao.findAll();
 
         assertTrue(actual.isEmpty());
     }
 
     @Test
-    void update_shouldUpdateTrainee_whenExists() {
-        trainees.put(ID, trainee);
-
-        Trainee expected = trainee.toBuilder()
+    void update_shouldMergeAndReturnTrainee() {
+        Trainee updated = trainee.toBuilder()
                 .user(trainee.getUser().toBuilder()
                         .firstName("Jane")
                         .build())
                 .build();
 
-        Trainee actual = dao.update(ID, expected);
+        when(session.merge(updated)).thenReturn(updated);
 
-        assertEquals(expected, actual);
-        assertEquals(expected, trainees.get(ID));
+        Trainee actual = dao.update(updated);
+
+        verify(session).merge(updated);
+        assertEquals(updated, actual);
     }
 
     @Test
     void delete_shouldRemoveTrainee_whenExists() {
-        trainees.put(ID, trainee);
+        when(session.get(Trainee.class, ID)).thenReturn(trainee);
 
         dao.delete(ID);
 
-        assertFalse(trainees.containsKey(ID));
+        verify(session).remove(trainee);
     }
 
     @Test
     void delete_shouldThrowException_whenNotExists() {
+        when(session.get(Trainee.class, NON_EXISTING_ID)).thenReturn(null);
+
         IllegalArgumentException actual = assertThrows(
                 IllegalArgumentException.class,
                 () -> dao.delete(NON_EXISTING_ID)
         );
 
         assertEquals(TRAINEE_NOT_FOUND_MESSAGE + NON_EXISTING_ID, actual.getMessage());
+        verify(session, never()).remove(any());
     }
 
     @Test
-    void update_shouldLogError_whenTraineeNotFound() {
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> dao.update(NON_EXISTING_ID, trainee)
-        );
+    void delete_shouldLogError_whenTraineeNotFound() {
+        when(session.get(Trainee.class, NON_EXISTING_ID)).thenReturn(null);
 
-        assertThat(exception.getMessage())
-                .isEqualTo(TRAINEE_NOT_FOUND_MESSAGE + NON_EXISTING_ID);
+        assertThrows(IllegalArgumentException.class, () -> dao.delete(NON_EXISTING_ID));
 
         assertThat(listAppender.list)
                 .hasSize(1)
@@ -150,7 +179,7 @@ class TraineeDaoImplTest {
 
     @Test
     void delete_shouldNotLogError_whenTraineeExists() {
-        trainees.put(ID, trainee);
+        when(session.get(Trainee.class, ID)).thenReturn(trainee);
 
         dao.delete(ID);
 

@@ -12,5 +12,5 @@ public interface TrainerDao {
 
     List<Trainer> findAll();
 
-    Trainer update(Long id, Trainer trainer);
+    Trainer update(Trainer trainer);
 }
