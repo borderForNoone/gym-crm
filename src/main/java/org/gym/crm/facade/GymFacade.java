@@ -62,10 +62,10 @@ public class GymFacade {
                 .collect(Collectors.toList());
     }
 
-    public TraineeResponseDto updateTrainee(Long id, TraineeRequestDto request) {
+    public TraineeResponseDto updateTrainee(TraineeRequestDto request) {
         Trainee trainee = traineeMapper.toEntity(request);
 
-        return traineeMapper.toDto(traineeService.update(id, trainee));
+        return traineeMapper.toDto(traineeService.update(trainee));
     }
 
     public void deleteTrainee(Long id) {
@@ -89,10 +89,10 @@ public class GymFacade {
                 .collect(Collectors.toList());
     }
 
-    public TrainerResponseDto updateTrainer(Long id, TrainerRequestDto request) {
+    public TrainerResponseDto updateTrainer(TrainerRequestDto request) {
         Trainer trainer = trainerMapper.toEntity(request);
 
-        return trainerMapper.toDto(trainerService.update(id, trainer));
+        return trainerMapper.toDto(trainerService.update(trainer));
     }
 
     public TrainingResponseDto createTraining(TrainingRequestDto request) {

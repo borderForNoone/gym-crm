@@ -1,67 +1,77 @@
 package org.gym.crm.dao;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import org.gym.crm.dao.impl.TrainerDaoImpl;
+import org.gym.crm.model.Trainee;
 import org.gym.crm.model.Trainer;
 import org.gym.crm.model.TrainingType;
 import org.gym.crm.model.User;
-import org.gym.crm.storage.Storage;
-import org.gym.crm.storage.TrainerStorage;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaCriteriaQuery;
+import org.hibernate.query.criteria.JpaRoot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.gym.crm.util.TestConstants.FITNESS;
 import static org.gym.crm.util.TestConstants.ID;
 import static org.gym.crm.util.TestConstants.NON_EXISTING_ID;
-import static org.gym.crm.util.TestConstants.NOT_FOUND_MESSAGE;
 import static org.gym.crm.util.TestConstants.TRAINER_FIRST_NAME;
 import static org.gym.crm.util.TestConstants.TRAINER_LAST_NAME;
 import static org.gym.crm.util.TestConstants.TRAINER_USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TrainerDaoImplTest {
     @Mock
-    private Storage storage;
+    private SessionFactory sessionFactory;
     @Mock
-    private TrainerStorage trainerStorage;
+    private Session session;
+    @Mock
+    private HibernateCriteriaBuilder criteriaBuilder;
+    @Mock
+    private JpaCriteriaQuery<Trainer> criteriaQuery;
+    @Mock
+    private JpaRoot<Trainer> root;
+    @Mock
+    private Query<Trainer> query;
 
-    private TrainerDao dao;
-    private Map<Long, Trainer> trainers;
+    @InjectMocks
+    private TrainerDaoImpl dao;
+
     private Trainer trainer;
 
     @BeforeEach
     void setUp() {
-        trainers = new HashMap<>();
         trainer = buildTrainer();
-
-        when(storage.getTrainerStorage()).thenReturn(trainerStorage);
-        when(trainerStorage.getTrainers()).thenReturn(trainers);
-
-        dao = new TrainerDaoImpl(storage);
+        when(sessionFactory.getCurrentSession()).thenReturn(session);
     }
 
     @Test
-    void save_shouldPutTrainerInStorageAndReturn() {
+    void save_shouldPersistTrainerAndReturn() {
         Trainer actual = dao.save(trainer);
 
+        verify(session).persist(trainer);
         assertEquals(trainer, actual);
-        assertEquals(trainer, trainers.get(ID));
     }
 
     @Test
     void findById_shouldReturnTrainer_whenExists() {
-        trainers.put(ID, trainer);
+        when(session.get(Trainer.class, ID)).thenReturn(trainer);
 
         Optional<Trainer> actual = dao.findById(ID);
 
@@ -71,6 +81,8 @@ class TrainerDaoImplTest {
 
     @Test
     void findById_shouldReturnEmpty_whenNotExists() {
+        when(session.get(Trainer.class, NON_EXISTING_ID)).thenReturn(null);
+
         Optional<Trainer> actual = dao.findById(NON_EXISTING_ID);
 
         assertTrue(actual.isEmpty());
@@ -78,7 +90,11 @@ class TrainerDaoImplTest {
 
     @Test
     void findAll_shouldReturnAllTrainers() {
-        trainers.put(ID, trainer);
+        when(session.getCriteriaBuilder()).thenReturn(criteriaBuilder);
+        when(criteriaBuilder.createQuery(Trainer.class)).thenReturn(criteriaQuery);
+        when(criteriaQuery.from(Trainer.class)).thenReturn(root);
+        when(session.createQuery(criteriaQuery)).thenReturn(query);
+        when(query.getResultList()).thenReturn(List.of(trainer));
 
         List<Trainer> actual = dao.findAll();
 
@@ -88,33 +104,31 @@ class TrainerDaoImplTest {
 
     @Test
     void findAll_shouldReturnEmptyList_whenNoTrainers() {
+        when(session.getCriteriaBuilder()).thenReturn(criteriaBuilder);
+        when(criteriaBuilder.createQuery(Trainer.class)).thenReturn(criteriaQuery);
+        when(criteriaQuery.from(Trainer.class)).thenReturn(root);
+        when(session.createQuery(criteriaQuery)).thenReturn(query);
+        when(query.getResultList()).thenReturn(List.of());
+
         List<Trainer> actual = dao.findAll();
 
         assertTrue(actual.isEmpty());
     }
 
     @Test
-    void update_shouldUpdateTrainer_whenExists() {
-        trainers.put(ID, trainer);
-
-        Trainer expected = trainer.toBuilder()
+    void update_shouldMergeAndReturnTrainer() {
+        Trainer updated = trainer.toBuilder()
                 .user(trainer.getUser().toBuilder()
                         .firstName("John")
                         .build())
                 .build();
 
-        Trainer actual = dao.update(ID, expected);
+        when(session.merge(updated)).thenReturn(updated);
 
-        assertEquals(expected, actual);
-        assertEquals(expected, trainers.get(ID));
-    }
+        Trainer actual = dao.update(updated);
 
-    @Test
-    void update_shouldThrowException_whenNotExists() {
-        IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, () -> dao.update(NON_EXISTING_ID, trainer));
-
-        assertEquals(NOT_FOUND_MESSAGE + NON_EXISTING_ID, exception.getMessage());
+        verify(session).merge(updated);
+        assertEquals(updated, actual);
     }
 
     private TrainingType fitnessType() {

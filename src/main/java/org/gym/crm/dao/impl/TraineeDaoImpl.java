@@ -1,68 +1,73 @@
 package org.gym.crm.dao.impl;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.gym.crm.dao.TraineeDao;
 import org.gym.crm.model.Trainee;
-import org.gym.crm.storage.Storage;
-import org.gym.crm.storage.TraineeStorage;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @Repository
+@RequiredArgsConstructor
 public class TraineeDaoImpl implements TraineeDao {
     private static final String TRAINEE_NOT_FOUND_MESSAGE = "Trainee not found with id: ";
 
-    private final TraineeStorage storage;
-    private final AtomicLong idGenerator = new AtomicLong(1);
-
-    public TraineeDaoImpl(Storage storage) {
-        this.storage = storage.getTraineeStorage();
-    }
+    private final SessionFactory sessionFactory;
 
     @Override
     public Trainee save(Trainee trainee) {
-        Long id = idGenerator.getAndIncrement();
+        sessionFactory.getCurrentSession().persist(trainee);
 
-        storage.getTrainees().put(id, trainee);
-
-        log.debug("Saved trainee with storage id={}", id);
+        log.debug("Saved trainee with id={}", trainee.getUserId());
         return trainee;
     }
 
     @Override
     public Optional<Trainee> findById(Long id) {
-        return Optional.ofNullable(storage.getTrainees().get(id));
+        return Optional.ofNullable(sessionFactory.getCurrentSession().get(Trainee.class, id));
     }
 
     @Override
     public List<Trainee> findAll() {
-        log.debug("Fetching all trainees, count={}", storage.getTrainees().size());
-        return new ArrayList<>(storage.getTrainees().values());
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+        CriteriaQuery<Trainee> criteriaQuery = criteriaBuilder.createQuery(Trainee.class);
+
+        criteriaQuery.from(Trainee.class);
+
+        List<Trainee> result = session.createQuery(criteriaQuery).getResultList();
+
+        log.debug("Fetching all trainees, count={}", result.size());
+        return result;
     }
 
     @Override
-    public Trainee update(Long id, Trainee trainee) {
-        if (!storage.getTrainees().containsKey(id)) {
-            log.error("Failed to update trainee with id: {}", id);
-            throw new IllegalArgumentException(TRAINEE_NOT_FOUND_MESSAGE + id);
-        }
-        storage.getTrainees().put(id, trainee);
+    public Trainee update(Trainee trainee) {
+        Trainee merged = sessionFactory.getCurrentSession().merge(trainee);
 
-        return trainee;
+        log.debug("Updated trainee with id={}", merged.getUserId());
+        return merged;
     }
 
     @Override
     public void delete(Long id) {
-        if (storage.getTrainees().remove(id) == null) {
+        var session = sessionFactory.getCurrentSession();
+        Trainee trainee = session.get(Trainee.class, id);
+
+        if (trainee == null) {
             log.error("Failed to delete trainee, id not found={}", id);
             throw new IllegalArgumentException(TRAINEE_NOT_FOUND_MESSAGE + id);
         }
 
+        session.remove(trainee);
         log.info("Trainee deleted successfully id={}", id);
     }
 }

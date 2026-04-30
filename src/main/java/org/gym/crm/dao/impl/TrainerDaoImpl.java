@@ -1,57 +1,59 @@
 package org.gym.crm.dao.impl;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.gym.crm.dao.TrainerDao;
 import org.gym.crm.model.Trainer;
-import org.gym.crm.storage.Storage;
-import org.gym.crm.storage.TrainerStorage;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @Repository
+@RequiredArgsConstructor
 public class TrainerDaoImpl implements TrainerDao {
-    private final TrainerStorage storage;
-    private final AtomicLong idGenerator = new AtomicLong(1);
-
-    public TrainerDaoImpl(Storage storage) {
-        this.storage = storage.getTrainerStorage();
-    }
+    private final SessionFactory sessionFactory;
 
     @Override
     public Trainer save(Trainer trainer) {
-        Long id = idGenerator.getAndIncrement();
+        sessionFactory.getCurrentSession().persist(trainer);
 
-        storage.getTrainers().put(id, trainer);
-
-        log.debug("Saved trainer with id={}", id);
+        log.debug("Saved trainer with id={}", trainer.getUserId());
         return trainer;
     }
 
     @Override
     public Optional<Trainer> findById(Long id) {
-        return Optional.ofNullable(storage.getTrainers().get(id));
+        return Optional.ofNullable(sessionFactory.getCurrentSession().get(Trainer.class, id));
     }
 
     @Override
     public List<Trainer> findAll() {
-        log.debug("Fetching all trainers, count={}", storage.getTrainers().size());
-        return new ArrayList<>(storage.getTrainers().values());
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+        CriteriaQuery<Trainer> criteriaQuery = criteriaBuilder.createQuery(Trainer.class);
+
+        Root<Trainer> root = criteriaQuery.from(Trainer.class);
+        criteriaQuery.select(root);
+
+        List<Trainer> result = session.createQuery(criteriaQuery).getResultList();
+
+        log.debug("Fetching all trainers, count={}", result.size());
+        return result;
     }
 
     @Override
-    public Trainer update(Long id, Trainer trainer) {
-        if (!storage.getTrainers().containsKey(id)) {
-            log.error("Failed to update trainer, id not found={}", id);
-            throw new IllegalArgumentException("Trainer not found with id: " + id);
-        }
-        storage.getTrainers().put(id, trainer);
+    public Trainer update(Trainer trainer) {
+        Trainer merged = sessionFactory.getCurrentSession().merge(trainer);
 
-        log.info("Trainer updated successfully id={}", id);
-        return trainer;
+        log.debug("Updated trainer with id={}", merged.getUserId());
+        return merged;
     }
 }

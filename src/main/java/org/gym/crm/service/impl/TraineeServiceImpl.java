@@ -62,9 +62,9 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    public Trainee update(Long id, Trainee trainee) {
-        log.info("Updating trainee with id={}", id);
-        return traineeDao.update(id, trainee);
+    public Trainee update(Trainee trainee) {
+        log.info("Updating trainee with id={}", trainee.getUserId());
+        return traineeDao.update(trainee);
     }
 
     @Override

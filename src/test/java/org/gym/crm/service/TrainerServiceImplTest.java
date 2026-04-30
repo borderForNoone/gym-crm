@@ -105,12 +105,12 @@ class TrainerServiceImplTest {
 
     @Test
     void update_shouldUpdateAndReturnTrainer() {
-        when(trainerDao.update(ID, trainer)).thenReturn(trainer);
+        when(trainerDao.update(trainer)).thenReturn(trainer);
 
-        Trainer actual = trainerService.update(ID, trainer);
+        Trainer actual = trainerService.update(trainer);
 
         assertEquals(trainer, actual);
-        verify(trainerDao).update(ID, trainer);
+        verify(trainerDao).update(trainer);
     }
 
     private TrainingType buildFitnessType() {

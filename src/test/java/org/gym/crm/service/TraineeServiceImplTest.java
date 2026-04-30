@@ -115,12 +115,12 @@ class TraineeServiceImplTest {
 
     @Test
     void update_shouldUpdateAndReturnTrainee() {
-        when(traineeDao.update(ID, trainee)).thenReturn(trainee);
+        when(traineeDao.update(trainee)).thenReturn(trainee);
 
-        Trainee actual = traineeService.update(ID, trainee);
+        Trainee actual = traineeService.update(trainee);
 
         assertEquals(trainee, actual);
-        verify(traineeDao).update(ID, trainee);
+        verify(traineeDao).update(trainee);
     }
 
     @Test

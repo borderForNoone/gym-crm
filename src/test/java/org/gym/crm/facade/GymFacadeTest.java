@@ -135,14 +135,14 @@ class GymFacadeTest {
     @Test
     void updateTrainee_shouldMapAndDelegateToService() {
         when(traineeMapper.toEntity(traineeRequest)).thenReturn(trainee);
-        when(traineeService.update(ID, trainee)).thenReturn(trainee);
+        when(traineeService.update(trainee)).thenReturn(trainee);
         when(traineeMapper.toDto(trainee)).thenReturn(traineeResponse);
 
-        TraineeResponseDto actual = facade.updateTrainee(ID, traineeRequest);
+        TraineeResponseDto actual = facade.updateTrainee(traineeRequest);
 
         assertEquals(traineeResponse, actual);
         verify(traineeMapper).toEntity(traineeRequest);
-        verify(traineeService).update(ID, trainee);
+        verify(traineeService).update(trainee);
         verify(traineeMapper).toDto(trainee);
     }
 
@@ -204,14 +204,14 @@ class GymFacadeTest {
     @Test
     void updateTrainer_shouldMapAndDelegateToService() {
         when(trainerMapper.toEntity(trainerRequest)).thenReturn(trainer);
-        when(trainerService.update(ID, trainer)).thenReturn(trainer);
+        when(trainerService.update(trainer)).thenReturn(trainer);
         when(trainerMapper.toDto(trainer)).thenReturn(trainerResponse);
 
-        TrainerResponseDto actual = facade.updateTrainer(ID, trainerRequest);
+        TrainerResponseDto actual = facade.updateTrainer(trainerRequest);
 
         assertEquals(trainerResponse, actual);
         verify(trainerMapper).toEntity(trainerRequest);
-        verify(trainerService).update(ID, trainer);
+        verify(trainerService).update(trainer);
         verify(trainerMapper).toDto(trainer);
     }
 
