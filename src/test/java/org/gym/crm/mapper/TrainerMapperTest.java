@@ -2,6 +2,7 @@ package org.gym.crm.mapper;
 
 import org.gym.crm.dto.request.TrainerRequestDto;
 import org.gym.crm.dto.response.TrainerResponseDto;
+import org.gym.crm.dto.update.TrainerUpdateDTO;
 import org.gym.crm.model.Trainer;
 import org.gym.crm.model.TrainingType;
 import org.gym.crm.model.User;
@@ -15,6 +16,7 @@ import static org.gym.crm.util.TestConstants.ID;
 import static org.gym.crm.util.TestConstants.LAST_NAME;
 import static org.gym.crm.util.TestConstants.TRAINER_USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -83,7 +85,54 @@ class TrainerMapperTest {
     }
 
     @Test
-    void toResponseDto_shouldHandleNullSpecialization() {
+    void toEntity_shouldReturnNull_whenRequestIsNull() {
+        assertNull(trainerMapper.toEntity((TrainerRequestDto) null));
+    }
+
+    @Test
+    void toEntity_update_shouldReturnNull_whenDtoIsNull() {
+        assertNull(trainerMapper.toEntity((TrainerUpdateDTO) null));
+    }
+
+    @Test
+    void toDto_shouldReturnNull_whenTrainerIsNull() {
+        assertNull(trainerMapper.toDto(null));
+    }
+
+    @Test
+    void toEntity_update_shouldMapAllFields() {
+        TrainerUpdateDTO dto = TrainerUpdateDTO.builder()
+                .firstName(FIRST_NAME)
+                .lastName(LAST_NAME)
+                .isActive(true)
+                .specialization(FITNESS)
+                .build();
+
+        Trainer actual = trainerMapper.toEntity(dto);
+
+        assertEquals(FIRST_NAME, actual.getUser().getFirstName());
+        assertEquals(LAST_NAME, actual.getUser().getLastName());
+        assertTrue(actual.getUser().getIsActive());
+        assertEquals(FITNESS, actual.getSpecialization().getTrainingTypeName());
+    }
+
+    @Test
+    void toDto_shouldHandleNullUser() {
+        Trainer trainer = Trainer.builder()
+                .user(null)
+                .specialization(fitness)
+                .build();
+
+        TrainerResponseDto actual = trainerMapper.toDto(trainer);
+
+        assertNull(actual.getUsername());
+        assertNull(actual.getFirstName());
+        assertNull(actual.getLastName());
+        assertFalse(actual.isActive());
+    }
+
+    @Test
+    void toDto_shouldHandleNullSpecialization() {
         User user = User.builder()
                 .firstName(FIRST_NAME)
                 .lastName(LAST_NAME)
@@ -99,6 +148,23 @@ class TrainerMapperTest {
         TrainerResponseDto actual = trainerMapper.toDto(trainer);
 
         assertNull(actual.getSpecialization());
+    }
+
+    @Test
+    void map_shouldReturnNull_whenStringIsNull() {
+        assertNull(trainerMapper.map((String) null));
+    }
+
+    @Test
+    void map_shouldConvertStringToTrainingType() {
+        TrainingType actual = trainerMapper.map(FITNESS);
+
+        assertEquals(FITNESS, actual.getTrainingTypeName());
+    }
+
+    @Test
+    void map_shouldReturnNull_whenTrainingTypeIsNull() {
+        assertNull(trainerMapper.map((TrainingType) null));
     }
 
     private TrainingType buildFitnessType() {

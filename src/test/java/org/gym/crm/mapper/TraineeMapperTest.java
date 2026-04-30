@@ -2,6 +2,7 @@ package org.gym.crm.mapper;
 
 import org.gym.crm.dto.request.TraineeRequestDto;
 import org.gym.crm.dto.response.TraineeResponseDto;
+import org.gym.crm.dto.update.TraineeUpdateDTO;
 import org.gym.crm.model.Trainee;
 import org.gym.crm.model.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ import static org.gym.crm.util.TestConstants.ID;
 import static org.gym.crm.util.TestConstants.LAST_NAME;
 import static org.gym.crm.util.TestConstants.USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -101,5 +103,70 @@ class TraineeMapperTest {
         TraineeResponseDto actual = traineeMapper.toDto(trainee);
 
         assertNull(actual.getDateOfBirth());
+    }
+
+    @Test
+    void toEntity_shouldReturnNull_whenDtoIsNull() {
+        assertNull(traineeMapper.toEntity((TraineeRequestDto) null));
+    }
+
+    @Test
+    void toEntity_shouldMapInactiveUser() {
+        TraineeRequestDto request = TraineeRequestDto.builder()
+                .firstName(FIRST_NAME)
+                .lastName(LAST_NAME)
+                .active(false)
+                .build();
+
+        Trainee actual = traineeMapper.toEntity(request);
+
+        assertEquals(FIRST_NAME, actual.getUser().getFirstName());
+        assertEquals(LAST_NAME, actual.getUser().getLastName());
+        assertEquals(false, actual.getUser().getIsActive());
+    }
+
+    @Test
+    void toEntity_updateDto_shouldReturnNull_whenDtoIsNull() {
+        assertNull(traineeMapper.toEntity((TraineeUpdateDTO) null));
+    }
+
+    @Test
+    void toEntity_updateDto_shouldMapFields() {
+        TraineeUpdateDTO dto = TraineeUpdateDTO.builder()
+                .firstName(FIRST_NAME)
+                .lastName(LAST_NAME)
+                .isActive(true)
+                .address(ADDRESS)
+                .dateOfBirth(DATE_OF_BIRTH)
+                .build();
+
+        Trainee actual = traineeMapper.toEntity(dto);
+
+        assertEquals(FIRST_NAME, actual.getUser().getFirstName());
+        assertEquals(LAST_NAME, actual.getUser().getLastName());
+        assertTrue(actual.getUser().getIsActive());
+        assertEquals(ADDRESS, actual.getAddress());
+        assertEquals(DATE_OF_BIRTH, actual.getDateOfBirth());
+    }
+
+    @Test
+    void toDto_shouldReturnNull_whenTraineeIsNull() {
+        assertNull(traineeMapper.toDto(null));
+    }
+
+    @Test
+    void toDto_shouldHandleNullUser() {
+        Trainee trainee = Trainee.builder()
+                .user(null)
+                .dateOfBirth(DATE_OF_BIRTH)
+                .address(ADDRESS)
+                .build();
+
+        TraineeResponseDto actual = traineeMapper.toDto(trainee);
+
+        assertNull(actual.getUsername());
+        assertNull(actual.getFirstName());
+        assertNull(actual.getLastName());
+        assertFalse(actual.isActive());
     }
 }
